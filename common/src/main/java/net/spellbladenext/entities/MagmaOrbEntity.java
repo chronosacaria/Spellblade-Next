@@ -8,11 +8,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,16 +21,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.spell_engine.api.spell.ParticleBatch;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.client.SpellEngineClient;
 import net.spell_engine.entity.SpellProjectile;
 import net.spell_engine.internals.SpellHelper;
-import net.spell_engine.particle.ParticleHelper;
-import net.spell_engine.particle.Particles;
 import net.spell_engine.utils.TargetHelper;
-import net.spell_power.api.MagicSchool;
-import net.spell_power.api.SpellDamageSource;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.items.FriendshipBracelet;
 
@@ -49,7 +40,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
     public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, Level level) {
         super(entityType, level);
     }
-    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, Level level, Player player) {
+    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, Level level, PlayerEntity playerEntity) {
         super(entityType, level);
         this.setOwner(player);
     }

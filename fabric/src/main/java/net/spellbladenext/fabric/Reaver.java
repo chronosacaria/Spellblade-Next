@@ -3,7 +3,6 @@ package net.spellbladenext.fabric;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Dynamic;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,7 +17,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -51,8 +49,8 @@ import net.spell_power.SpellPowerMod;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellDamageSource;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.fabric.items.spellblades.Spellblade;
-import net.spellbladenext.fabric.items.spellblades.Spellblades;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItem;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -302,14 +300,14 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
     protected void playAngrySound() {
     }
     public MagicSchool getMagicSchool(){
-        if(this.getMainHandItem().getItem() instanceof Spellblade spellblade){
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
+        if(this.getMainHandItem().getItem() instanceof SpellbladeItem spellbladeItem){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
                 return MagicSchool.FIRE;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
                 return MagicSchool.FROST;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
                 return MagicSchool.ARCANE;
             }
         }
@@ -323,7 +321,7 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
 
     @Override
     protected void dropFromLootTable(DamageSource damageSource, boolean bl) {
-        if(damageSource.getEntity() instanceof Player player && player.hasEffect(ExampleModFabric.HEX.get())){
+        if(damageSource.getEntity() instanceof PlayerEntity playerEntity && player.hasEffect(ExampleModFabric.HEX.get())){
             player.removeEffect(ExampleModFabric.HEX.get());
         }
         super.dropFromLootTable(damageSource, bl);
@@ -336,8 +334,8 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
 
     @Override
     public boolean hurt(DamageSource damageSource, float f) {
-        if(damageSource.getDirectEntity() instanceof Player player && this.isScout() && this.getHealth()/this.getMaxHealth() <= 0.5 && this.getMainHandItem().isEmpty()){
-           this.equipItemIfPossible(new ItemStack(Spellblades.entries.get(this.random.nextInt(Spellblades.entries.size())).item()));
+        if(damageSource.getDirectEntity() instanceof PlayerEntity playerEntity && this.isScout() && this.getHealth()/this.getMaxHealth() <= 0.5 && this.getMainHandItem().isEmpty()){
+           this.equipItemIfPossible(new ItemStack(SpellbladeItems.entries.get(this.random.nextInt(SpellbladeItems.entries.size())).item()));
         }
         return super.hurt(damageSource, f);
 
@@ -442,7 +440,7 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand interactionHand) {
+    protected InteractionResult mobInteract(PlayerEntity playerEntity, InteractionHand interactionHand) {
         if (this.getOffers().isEmpty() || !this.getMainHandItem().isEmpty()) {
             return InteractionResult.FAIL;
         } else {
@@ -496,7 +494,7 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
     }
 
     @Override
-    public void setTradingPlayer(@Nullable Player player) {
+    public void setTradingPlayer(@Nullable PlayerEntity playerEntity) {
         this.tradingplayer = player;
     }
 
@@ -519,7 +517,7 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
         offers.add(new MerchantOffer(
                 new ItemStack(SpellbladeNext.RUNEFROSTPLATING.get(),8),
                 offering,10,8,0.02F));
-        for(var entry : Spellblades.entries) {
+        for(var entry : SpellbladeItems.entries) {
             offers.add(new MerchantOffer(
                     new ItemStack(entry.item(), 8),
                     offering, 10, 8, 0.02F));
@@ -563,7 +561,7 @@ public class Reaver extends PathfinderMob implements  InventoryCarrier, IAnimata
         return null;
     }
 
-    public void openTradingScreen(Player player, Component component, int i) {
+    public void openTradingScreen(PlayerEntity playerEntity, Component component, int i) {
         OptionalInt optionalInt = player.openMenu(new SimpleMenuProvider((ix, inventory, playerx) -> {
             return new MerchantMenu(ix, inventory, this);
         }, component));

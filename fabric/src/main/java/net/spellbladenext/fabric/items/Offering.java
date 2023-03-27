@@ -4,7 +4,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -21,7 +20,7 @@ public class Offering extends Item{
 
     @Override
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
-        if(entity instanceof Player player){
+        if(entity instanceof PlayerEntity playerEntity){
             if(player.hasEffect(ExampleModFabric.HEX.get())){
                 player.removeEffect(ExampleModFabric.HEX.get());
             }
@@ -30,7 +29,7 @@ public class Offering extends Item{
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+    public InteractionResultHolder<ItemStack> use(Level level, PlayerEntity playerEntity, InteractionHand interactionHand) {
         if(player.hasEffect(ExampleModFabric.HEX.get())){
             player.removeEffect(ExampleModFabric.HEX.get());
             return InteractionResultHolder.consume(player.getItemInHand(interactionHand));

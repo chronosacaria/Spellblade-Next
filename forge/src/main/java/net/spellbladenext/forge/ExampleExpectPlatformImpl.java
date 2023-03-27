@@ -1,7 +1,7 @@
 package net.spellbladenext.forge;
 
-import net.spellbladenext.ExampleExpectPlatform;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.spellbladenext.ExampleExpectPlatform;
 
 import java.nio.file.Path;
 

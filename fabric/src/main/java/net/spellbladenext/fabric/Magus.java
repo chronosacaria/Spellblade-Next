@@ -3,7 +3,6 @@ package net.spellbladenext.fabric;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Dynamic;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -12,13 +11,10 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -46,8 +42,8 @@ import net.spell_power.SpellPowerMod;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellDamageSource;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.fabric.items.spellblades.Spellblade;
-import net.spellbladenext.fabric.items.spellblades.Spellblades;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItem;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -214,13 +210,13 @@ public class Magus extends PathfinderMob implements InventoryCarrier, IAnimatabl
     @Override
     public ItemStack getMainHandItem() {
         if(this.getEntityData().get(TIER) % 3 == 0){
-            return new ItemStack(Spellblades.arcaneBlade.item());
+            return new ItemStack(SpellbladeItems.arcaneBlade.item());
         }
         if(this.getEntityData().get(TIER) % 3 == 1){
-            return new ItemStack(Spellblades.fireBlade.item());
+            return new ItemStack(SpellbladeItems.fireBlade.item());
         }
         if(this.getEntityData().get(TIER) % 3 == 2){
-            return new ItemStack(Spellblades.frostBlade.item());
+            return new ItemStack(SpellbladeItems.frostBlade.item());
         }
         return super.getMainHandItem();
     }
@@ -245,14 +241,14 @@ public class Magus extends PathfinderMob implements InventoryCarrier, IAnimatabl
 
 
     public MagicSchool getMagicSchool(){
-        if(this.getMainHandItem().getItem() instanceof Spellblade spellblade){
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
+        if(this.getMainHandItem().getItem() instanceof SpellbladeItem spellbladeItem){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
                 return MagicSchool.FIRE;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
                 return MagicSchool.FROST;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
                 return MagicSchool.ARCANE;
             }
         }

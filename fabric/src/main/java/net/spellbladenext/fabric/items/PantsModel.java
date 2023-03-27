@@ -1,7 +1,6 @@
 package net.spellbladenext.fabric.items;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.spellbladenext.SpellbladeNext;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

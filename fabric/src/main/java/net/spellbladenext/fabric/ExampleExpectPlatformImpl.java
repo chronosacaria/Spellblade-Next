@@ -1,7 +1,7 @@
 package net.spellbladenext.fabric;
 
-import net.spellbladenext.ExampleExpectPlatform;
 import net.fabricmc.loader.api.FabricLoader;
+import net.spellbladenext.ExampleExpectPlatform;
 
 import java.nio.file.Path;
 

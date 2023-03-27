@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
-import net.spellbladenext.fabric.items.spellblades.Spellblade;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +83,7 @@ public class netherPortal extends FallingBlockEntity {
         return false;
     }
 
-    public void setOwner(Player player){
+    public void setOwner(PlayerEntity playerEntity){
         this.owner = player;
     }
 
@@ -158,7 +158,7 @@ public class netherPortal extends FallingBlockEntity {
         else if(this.spawn && this.tickCount < 100 && this.tickCount % 10 == 5 && !this.ishome){
             ArrayList<ItemStack> spellblades = new ArrayList<ItemStack>();
             for(Item item : Registry.ITEM.stream().toList()){
-                if(item instanceof Spellblade){
+                if(item instanceof SpellbladeItem){
                     spellblades.add(new ItemStack(item));
                 }
             }

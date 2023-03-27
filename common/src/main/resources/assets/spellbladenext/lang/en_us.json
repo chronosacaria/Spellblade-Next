@@ -5,6 +5,9 @@
   "item.spellbladenext.example_item": "Example Item",
   "item.spellbladenext.spellblade": "Target",
 
+  "tooltip.spellbladenext.enabled": "Enabled. Auto-targeted spells will not target friendly mobs, neutral mobs, and players.",
+  "tooltip.spellbladenext.activation_prompt": "Right click to Enable.",
+
   "item.spellbladenext.blade_arcane": "Arcane Spellblade",
   "item.spellbladenext.blade_fire": "Flaming Spellblade",
   "item.spellbladenext.blade_frost": "Frost Spellblade",

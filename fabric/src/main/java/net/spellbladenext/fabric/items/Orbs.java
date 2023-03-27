@@ -11,7 +11,6 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.spell_engine.api.item.ConfigurableAttributes;
-
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.attributes.SpellAttributes;
 import net.spellbladenext.SpellbladeNext;

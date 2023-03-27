@@ -5,10 +5,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,7 +17,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.ParticleBatch;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.client.SpellEngineClient;
 import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.particle.ParticleHelper;
 import net.spell_engine.utils.TargetHelper;
@@ -41,7 +37,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
     public Spell spell;
 
 
-    public AmethystEntity(EntityType<? extends AmethystEntity> p_36721_, Level p_36722_,Player player) {
+    public AmethystEntity(EntityType<? extends AmethystEntity> p_36721_, Level p_36722_,PlayerEntity playerEntity) {
         super(p_36721_, p_36722_);
         this.setOwner(player);
         Vec3 vec3 = player.getViewVector(0);
@@ -107,7 +103,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
             this.setXRot(Mth.lerp(0.2F, this.xRotO, this.getXRot()));
 
             if(this.getOwner() instanceof LivingEntity && !this.getLevel().isClientSide()) {
-                if (this.getOwner() instanceof Player player && this.detected != null) {
+                if (this.getOwner() instanceof PlayerEntity playerEntity && this.detected != null) {
                     if (!this.detected.isEmpty() && ((int) (this.i / 4D)) < this.detected.toArray().length && this.i / 4D < 10 && this.power != null) {
                         AmethystEntity2 amethystEntity2 = new AmethystEntity2(SpellbladeNext.AMETHYST2, this.getLevel(), player);
                         Vec3 vec31 = (this.detected.get((int) (this.i / 4D))).position().add(0, this.detected.get((int) (this.i / 4D)).getBoundingBox().getYsize() / 2, 0).subtract(this.position()).normalize();
@@ -166,7 +162,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
                 this.discard();
             }
 
-            /*if(this.getOwner() instanceof Player player) {
+            /*if(this.getOwner() instanceof PlayerEntity playerEntity) {
                 List<Entity> entity = this.getLevel().getEntitiesOfClass(Entity.class, this.getBoundingBox().expandTowards(this.getDeltaMovement()),asdf -> asdf != this.getOwner());
                 if(!entity.isEmpty() && ((int) (i/4)) < entity.toArray().length){
                     AmethystEntity2 amethystEntity2 = new AmethystEntity2(ExampleMod.AMETHYST2,this.getLevel(),player);
@@ -183,7 +179,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
                     this.setDeltaMovement(Vec3.ZERO);
                     if(this.getLevel() instanceof ServerLevel serverLevel) {
 
-                        for (ServerPlayer player1 : serverLevel.players()
+                        for (ServerPlayerEntity playerEntity1 : serverLevel.players()
                         ) {
                         }
                     }
@@ -196,7 +192,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
             }*/
 
         }
-        if(this.getOwner() instanceof Player player && !this.getLevel().isClientSide()) {
+        if(this.getOwner() instanceof PlayerEntity playerEntity && !this.getLevel().isClientSide()) {
             if (this.tickCount == 20) {
                 if(this.detected == null) {
                     Predicate<Entity> selectionPredicate = (target) -> {
@@ -232,7 +228,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
                     else {
                         if(player.getLevel() instanceof ServerLevel serverLevel) {
 
-                            for (ServerPlayer player1 : serverLevel.players()
+                            for (ServerPlayerEntity playerEntity1 : serverLevel.players()
                             ) {
                             }
                         }
@@ -242,7 +238,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
                 else{
                     if(player.getLevel() instanceof ServerLevel serverLevel) {
 
-                        for (ServerPlayer player1 : serverLevel.players()
+                        for (ServerPlayerEntity playerEntity1 : serverLevel.players()
                         ) {
                         }
                     }
@@ -268,7 +264,7 @@ public class AmethystEntity extends AbstractArrow implements ItemSupplier {
         return;
     }
     @Override
-    protected boolean tryPickup(Player player) {
+    protected boolean tryPickup(PlayerEntity playerEntity) {
         return false;
     }
     @Override

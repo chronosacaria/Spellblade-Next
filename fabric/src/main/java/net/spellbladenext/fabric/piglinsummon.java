@@ -1,14 +1,10 @@
 package net.spellbladenext.fabric;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.NaturalSpawner;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -53,7 +49,7 @@ public interface piglinsummon {
                          boolean bool = level.getRandom().nextBoolean();
                          netherPortal portal = new netherPortal(ExampleModFabric.NETHERPORTAL, level, player, pos, 0, bool,home);
                          netherPortalFrame frame = new netherPortalFrame(ExampleModFabric.NETHERPORTALFRAME, level, player, pos, 0, bool,home);
-                         if(player instanceof ServerPlayer player1) {
+                         if(player instanceof ServerPlayerEntity playerEntity1) {
                               player1.getStats().setValue(player1, Stats.CUSTOM.get(SINCELASTHEX), 0);
                          }
 

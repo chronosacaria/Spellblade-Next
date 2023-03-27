@@ -1,4 +1,4 @@
-package net.spellbladenext.fabric.items.spellblades;
+package net.spellbladenext.items.spellbladeitems;
 
 import com.google.common.collect.Multimap;
 import net.minecraft.core.BlockPos;
@@ -15,11 +15,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.Level;
-
 import net.minecraft.world.level.block.state.BlockState;
 import net.spell_engine.api.item.ConfigurableAttributes;
-import net.spell_engine.api.item.weapon.StaffItem;
-import net.spell_engine.internals.*;
+import net.spell_engine.internals.SpellCast;
+import net.spell_engine.internals.SpellContainerHelper;
+import net.spell_engine.internals.SpellHelper;
+import net.spell_engine.internals.SpellRegistry;
 import net.spell_engine.utils.TargetHelper;
 import net.spell_power.SpellPowerMod;
 import net.spell_power.api.MagicSchool;
@@ -33,11 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Spellblade extends SwordItem implements ConfigurableAttributes {
+public class SpellbladeItem extends SwordItem implements ConfigurableAttributes {
     private final ArrayList<ItemConfig.SpellAttribute> school;
     private Multimap<Attribute, AttributeModifier> attributes;
 
-    public Spellblade(Tier material, Multimap<Attribute, AttributeModifier> attributes, Properties settings, ArrayList<ItemConfig.SpellAttribute> school) {
+    public SpellbladeItem(Tier material, Multimap<Attribute, AttributeModifier> attributes, Properties settings, ArrayList<ItemConfig.SpellAttribute> school) {
         super(material,1,material.getAttackDamageBonus(),  settings);
         this.school = school;
 
@@ -53,7 +54,7 @@ public class Spellblade extends SwordItem implements ConfigurableAttributes {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         for(ItemConfig.SpellAttribute school: this.getMagicSchools().stream().toList()) {
-            if(attacker instanceof Player player) {
+            if(attacker instanceof PlayerEntity playerEntity) {
                 //System.out.println(school.name);
                 MagicSchool actualSchool = MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID, school.name));
 

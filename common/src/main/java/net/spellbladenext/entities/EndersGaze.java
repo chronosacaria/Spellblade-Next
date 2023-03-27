@@ -1,8 +1,6 @@
 package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMultimap;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,23 +12,19 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.spell_engine.api.spell.ParticleBatch;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.client.SpellEngineClient;
 import net.spell_engine.entity.SpellProjectile;
 import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.particle.ParticleHelper;
 import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.MagicSchool;
-import net.spell_power.api.SpellDamageSource;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.items.FriendshipBracelet;
 import org.jetbrains.annotations.Nullable;
@@ -55,7 +49,7 @@ public class EndersGaze extends SpellProjectile implements ItemSupplier {
     public EndersGaze(EntityType<? extends EndersGaze> entityType, Level level) {
         super(entityType, level);
     }
-    public EndersGaze(EntityType<? extends EndersGaze> entityType, Level level, Player player, Entity target, int number) {
+    public EndersGaze(EntityType<? extends EndersGaze> entityType, Level level, PlayerEntity playerEntity, Entity target, int number) {
         super(entityType, level);
         this.setOwner(player);
         this.target = target;

@@ -5,12 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import net.spellbladenext.fabric.ExampleModFabric;
 import net.spellbladenext.fabric.Magus;
 import net.spellbladenext.fabric.piglinsummon;
@@ -25,7 +23,7 @@ public class PrismaticEffigy extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
+    public InteractionResultHolder<ItemStack> use(Level level, PlayerEntity playerEntity, InteractionHand interactionHand) {
         if(level instanceof ServerLevel level1 && StreamSupport.stream(level1.getAllEntities().spliterator(),true).filter(entity -> entity instanceof Magus).count() < 1) {
             for (int i = 0; i < 10; i++) {
                 BlockPos vec3 = piglinsummon.getSafePositionAroundPlayer(level, player.getOnPos(), 10);

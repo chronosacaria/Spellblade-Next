@@ -2,15 +2,11 @@ package net.spellbladenext.fabric.items;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -18,19 +14,16 @@ import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.spell_engine.api.item.ConfigurableAttributes;
-import net.spell_engine.internals.SpellCasterEntity;
-import net.spell_engine.internals.SpellRegistry;
 import net.spell_power.api.MagicSchool;
-import net.spell_power.api.attributes.CustomEntityAttribute;
 import net.spell_power.api.attributes.EntityAttributes_SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import org.checkerframework.checker.units.qual.A;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-import java.util.*;
+import java.util.Properties;
+import java.util.UUID;
 
 public class Robes extends ArmorItem implements IAnimatable, DyeableLeatherItem, ConfigurableAttributes {
     protected EquipmentSlot slot;
@@ -86,7 +79,7 @@ public class Robes extends ArmorItem implements IAnimatable, DyeableLeatherItem,
 
         if(!level.isClientSide()) {
             if(entity instanceof Player) {
-                Player player = (Player)entity;
+                PlayerEntity playerEntity = (Player)entity;
 
                 int amount = 0;
                 if(player.getInventory().getArmor(0).getItem() instanceof Robes){

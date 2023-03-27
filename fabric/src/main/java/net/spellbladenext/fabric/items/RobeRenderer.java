@@ -1,6 +1,5 @@
 package net.spellbladenext.fabric.items;
 
-import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 
     public class RobeRenderer extends GeoArmorRenderer<Robes> {

@@ -12,11 +12,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.spell_power.SpellPowerMod;
 import net.spell_power.api.MagicSchool;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.fabric.items.spellblades.Spellblade;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItem;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.processor.IBone;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.renderers.geo.*;
+import software.bernie.geckolib3.renderers.geo.ExtendedGeoEntityRenderer;
 
 public class CivilizedPiglinRenderer<T extends Reaver, M extends HumanoidModel<T>> extends ExtendedGeoEntityRenderer<Reaver> {
 
@@ -35,14 +35,14 @@ public class CivilizedPiglinRenderer<T extends Reaver, M extends HumanoidModel<T
 
 
     public ResourceLocation getTextureLocation(Reaver p_114891_) {
-        if(p_114891_.getMainHandItem().getItem() instanceof Spellblade spellblade){
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
+        if(p_114891_.getMainHandItem().getItem() instanceof SpellbladeItem spellbladeItem){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FIRE))){
                 return FIRE;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.FROST))){
                 return FROST;
             }
-            if(spellblade.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
+            if(spellbladeItem.getMagicSchools().stream().anyMatch(asdf -> MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID,asdf.name)).equals(MagicSchool.ARCANE))){
                 return ARCANE;
             }
         }

@@ -1,19 +1,14 @@
 package net.spellbladenext.fabric.mixin;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
@@ -25,9 +20,7 @@ import net.spellbladenext.SpellbladeNext;
 import net.spellbladenext.entities.AmethystEntity;
 import net.spellbladenext.entities.AmethystEntity2;
 import net.spellbladenext.entities.EndersGaze;
-import net.spellbladenext.entities.EndersGazeEntity;
 import net.spellbladenext.fabric.ColdAttack;
-import net.spellbladenext.fabric.ExampleModFabric;
 import net.spellbladenext.fabric.SpinAttack;
 import net.spellbladenext.items.FriendshipBracelet;
 import org.spongepowered.asm.mixin.Mixin;
@@ -46,7 +39,7 @@ public class SpellMixin {
     private void setEntity(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof AmethystEntity2)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.AMETHYST_SHARD) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.AMETHYST_SHARD) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 for(int ii = 0; ii < 4; ii++) {
                     AmethystEntity amethyst = new AmethystEntity(SpellbladeNext.AMETHYST, entity.getLevel(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()));
@@ -67,7 +60,7 @@ public class SpellMixin {
         }
         if(entity instanceof SpellProjectile spellProjectile && spellProjectile.getSpell() != null && !(entity instanceof AmethystEntity2)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.AMETHYST_CLUSTER) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.AMETHYST_CLUSTER) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 SpinAttack amethyst = new SpinAttack(spellProjectile.getLevel(),player,player.getX(),player.getY(),player.getZ(), SpellProjectile.Behaviour.FLY,spellProjectile.getSpell(),spellProjectile.getFollowedTarget(),spellProjectile.getImpactContext());
                 //amethyst.hero = player;
                 //amethyst.setInvisible(true);
@@ -97,7 +90,7 @@ public class SpellMixin {
 
                                     int num_pts = 10;
                                     Vec3 targetcenter = new Vec3(X, Y, Z);
-                                    for (ServerPlayer player1 : level.players()) {
+                                    for (ServerPlayerEntity playerEntity1 : level.players()) {
                                         level.sendParticles(player1, ParticleTypes.SMOKE, true, targetcenter.x + -0.5 + player.getRandom().nextDouble(), targetcenter.y+ -0.5 + player.getRandom().nextDouble(), targetcenter.z+ -0.5 + player.getRandom().nextDouble(), 1, 0, 0, 0, 0F);
                                     }
                                 }
@@ -108,7 +101,7 @@ public class SpellMixin {
 
                                     int num_pts = 10;
                                     Vec3 targetcenter = new Vec3(X, Y, Z);
-                                    for (ServerPlayer player1 : level.players()) {
+                                    for (ServerPlayerEntity playerEntity1 : level.players()) {
                                         level.sendParticles(player1, ParticleTypes.ELECTRIC_SPARK, true, targetcenter.x+ -0.25 + 0.5*player.getRandom().nextDouble(), targetcenter.y+ -0.25 + 0.5*player.getRandom().nextDouble(), targetcenter.z+ -0.25 + 0.5*player.getRandom().nextDouble(), 1, 0, 0, 0, 0F);
                                     }
                                 }
@@ -119,7 +112,7 @@ public class SpellMixin {
                 }
                 info.cancel();
             }
-            if(spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "multislash"))) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "multislash"))) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 SpinAttack amethyst = new SpinAttack(spellProjectile.getLevel(),player,player.getX(),player.getY(),player.getZ(), SpellProjectile.Behaviour.FLY,spellProjectile.getSpell(),spellProjectile.getFollowedTarget(),spellProjectile.getImpactContext());
                 //amethyst.hero = player;
                 //amethyst.setInvisible(true);
@@ -141,7 +134,7 @@ public class SpellMixin {
                 }
                 info.cancel();
             }
-            if(spellProjectile.getItem().getItem().equals(Items.BLUE_ICE) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.BLUE_ICE) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 ColdAttack amethyst = new ColdAttack(spellProjectile.getLevel(),player,player.getX(),player.getY(),player.getZ(), SpellProjectile.Behaviour.FLY,spellProjectile.getSpell(),spellProjectile.getFollowedTarget(),spellProjectile.getImpactContext());
                 amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()).subtract(0,1,0));
 
@@ -154,7 +147,7 @@ public class SpellMixin {
 
                 info.cancel();
             }
-            if(spellProjectile.getSpell() != null && spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "multicoldfury"))) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getSpell() != null && spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "multicoldfury"))) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 for(int i = 0; i < 4; i++) {
                     ColdAttack amethyst2 = new ColdAttack(spellProjectile.getLevel(), player, player.getX(), player.getY(), player.getZ(), SpellProjectile.Behaviour.FLY, spellProjectile.getSpell(), spellProjectile.getFollowedTarget(), spellProjectile.getImpactContext());
                     amethyst2.setPos(player.getEyePosition().subtract(0, 1, 0));
@@ -172,7 +165,7 @@ public class SpellMixin {
                 info.cancel();
             }
             if(spellProjectile.getSpell() != null) {
-                if (spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "visionofender"))) && spellProjectile.getOwner() instanceof Player player) {
+                if (spellProjectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "visionofender"))) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                     Predicate<Entity> selectionPredicate = (target) -> {
                         return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
                                 && FriendshipBracelet.PlayerFriendshipPredicate(player, target));
@@ -198,7 +191,7 @@ public class SpellMixin {
             }
         }
     }
-    public final Vec3 getViewVector(Player player,float f) {
+    public final Vec3 getViewVector(PlayerEntity playerEntity,float f) {
         return this.calculateViewVector(0, player.getViewYRot(1)+f);
     }
     protected final Vec3 calculateViewVector(float f, float g) {

@@ -3,13 +3,11 @@ package net.spellbladenext.fabric.mixin;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.spell_engine.entity.SpellProjectile;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.AmethystEntity;
 import net.spellbladenext.entities.FlameWindsEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,7 +20,7 @@ public class FlameWindsMixin {
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof FlameWindsEntity)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.MAGMA_CREAM) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.MAGMA_CREAM) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                     FlameWindsEntity amethyst = new FlameWindsEntity(SpellbladeNext.FLAMEWINDS, entity.getLevel(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()));
                     amethyst.setDeltaMovement(player.getViewVector(1).multiply(1, 1, 1));

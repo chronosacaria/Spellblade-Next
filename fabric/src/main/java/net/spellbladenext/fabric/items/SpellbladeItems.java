@@ -1,7 +1,6 @@
 package net.spellbladenext.fabric.items;
 
 import net.minecraft.world.item.Item;
-import net.spellbladenext.fabric.items.spellblades.Spellblades;
 
 import java.util.HashMap;
 
@@ -11,16 +10,16 @@ public class SpellbladeItems {
     public static final HashMap<String, Item> entries;
     static {
         entries = new HashMap<>();
-        for (var weaponEntry : Spellblades.entries) {
+        for (var weaponEntry : net.spellbladenext.items.spellbladeitems.SpellbladeItems.entries) {
             entries.put(weaponEntry.id().toString(), weaponEntry.item());
         }
         for (var weaponEntry : Orbs.orbs) {
             entries.put(weaponEntry.id().toString(), weaponEntry.item());
         }
-        for (var weaponEntry : Spellblades.claymores) {
+        for (var weaponEntry : net.spellbladenext.items.spellbladeitems.SpellbladeItems.claymores) {
             entries.put(weaponEntry.id().toString(), weaponEntry.item());
         }
-        for (var weaponEntry : Spellblades.runedaggers) {
+        for (var weaponEntry : net.spellbladenext.items.spellbladeitems.SpellbladeItems.runedaggers) {
             entries.put(weaponEntry.id().toString(), weaponEntry.item());
         }
         for (var entry : Armors.entries) {

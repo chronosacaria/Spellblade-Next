@@ -1,8 +1,8 @@
 package net.spellbladenext.fabric;
 
 import dev.architectury.registry.registries.DeferredRegister;
-import dev.architectury.registry.registries.Registries;
 import dev.architectury.registry.registries.RegistrySupplier;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
@@ -11,68 +11,54 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.data.tags.BannerPatternTagsProvider;
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.LoomMenu;
-import net.minecraft.world.item.BannerPatternItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellCasterEntity;
 import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.internals.SpellRegistry;
-
 import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.SpellPower;
-import net.spell_power.api.attributes.SpellAttributes;
 import net.spellbladenext.SpellbladeNext;
-import net.fabricmc.api.ModInitializer;
+import net.spellbladenext.entities.*;
 import net.spellbladenext.fabric.block.Hexblade;
 import net.spellbladenext.fabric.config.ItemConfig;
 import net.spellbladenext.fabric.config.LootConfig;
 import net.spellbladenext.fabric.items.*;
-import net.spellbladenext.entities.*;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 import net.spellbladenext.items.FriendshipBracelet;
-import net.spellbladenext.fabric.items.spellblades.Spellblades;
 import net.tinyconfig.ConfigManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import static net.minecraft.core.Registry.ENTITY_TYPE;
 import static net.spell_engine.internals.SpellHelper.impactTargetingMode;
-import static net.spell_engine.internals.SpellHelper.launchPoint;
 import static net.spellbladenext.SpellbladeNext.*;
 
 public class ExampleModFabric implements ModInitializer {
@@ -152,7 +138,7 @@ public class ExampleModFabric implements ModInitializer {
         lootConfig.refresh();
         itemConfig.refresh();
         System.out.println(itemConfig.value.weapons);
-        Spellblades.register(itemConfig.value.weapons);
+        SpellbladeItems.register(itemConfig.value.weapons);
         Orbs.register(itemConfig.value.weapons);
         Armors.register(itemConfig.value.armor_sets);
 
@@ -202,7 +188,7 @@ public class ExampleModFabric implements ModInitializer {
                 runegleaming_feet);
 */
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            for(ServerPlayer player : server.getPlayerList().getPlayers()){
+            for(ServerPlayerEntity playerEntity : server.getPlayerList().getPlayers()){
                 if (((int) (player.getLevel().getDayTime() % 24000L)) % 1200 == 0) {
 
                     if(player.getLevel().getGameRules().getBoolean(SHOULD_INVADE) && player.getStats().getValue(Stats.CUSTOM.get(HEXRAID)) > 0) {
@@ -230,7 +216,7 @@ public class ExampleModFabric implements ModInitializer {
         });
         HurtCallback.EVENT.register((damageSource, f) -> {
             //System.out.println("asdf");
-            if(damageSource.isMagic() && damageSource.getEntity() instanceof Player player){
+            if(damageSource.isMagic() && damageSource.getEntity() instanceof PlayerEntity playerEntity){
                 player.awardStat(HEXRAID, (int) Math.ceil(f));
             }
             return InteractionResult.PASS;
@@ -239,7 +225,7 @@ public class ExampleModFabric implements ModInitializer {
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             for(ServerLevel level : server.getAllLevels()) {
                 for (SpellProjectile projectile : level.getEntities(EntityTypeTest.forClass(SpellProjectile.class), asdf -> asdf instanceof SpellProjectile)) {
-                    if (projectile.getSpell() != null && projectile.getOwner() instanceof Player player && projectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(MOD_ID, "magic_missile")))) {
+                    if (projectile.getSpell() != null && projectile.getOwner() instanceof PlayerEntity playerEntity && projectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(MOD_ID, "magic_missile")))) {
                         if (projectile.tickCount >= 20) {
                             List<LivingEntity> living = projectile.getLevel().getEntitiesOfClass(LivingEntity.class, projectile.getBoundingBox().inflate(32));
                             living.removeIf(living1 -> !living1.hasLineOfSight(projectile));

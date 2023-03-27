@@ -35,7 +35,7 @@ public class IceThorn extends SpellProjectile implements ItemSupplier {
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public IceThorn(EntityType<? extends IceThorn> p_36721_, Level p_36722_, Player player) {
+    public IceThorn(EntityType<? extends IceThorn> p_36721_, Level p_36722_, PlayerEntity playerEntity) {
         super(p_36721_, p_36722_);
         this.setOwner(player);
         Vec3 vec3 = player.getViewVector(0);

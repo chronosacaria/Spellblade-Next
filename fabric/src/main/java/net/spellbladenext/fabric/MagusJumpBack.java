@@ -3,10 +3,8 @@ package net.spellbladenext.fabric;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
@@ -23,7 +21,6 @@ import net.spell_power.api.SpellDamageSource;
 import net.spellbladenext.SpellbladeNext;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static net.spellbladenext.fabric.Magus.JUMPING;

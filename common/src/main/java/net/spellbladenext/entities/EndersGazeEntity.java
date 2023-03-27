@@ -1,18 +1,12 @@
 package net.spellbladenext.entities;
 
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.spell_engine.api.spell.ParticleBatch;
@@ -33,7 +27,7 @@ public class EndersGazeEntity extends SpellProjectile implements ItemSupplier {
     public EndersGazeEntity(EntityType<? extends EndersGazeEntity> entityType, Level level) {
         super(entityType, level);
     }
-    public EndersGazeEntity(EntityType<? extends EndersGazeEntity> entityType, Level level, Player player) {
+    public EndersGazeEntity(EntityType<? extends EndersGazeEntity> entityType, Level level, PlayerEntity playerEntity) {
         super(entityType, level);
         this.setOwner(player);
     }
@@ -72,7 +66,7 @@ public class EndersGazeEntity extends SpellProjectile implements ItemSupplier {
 
     @Override
     protected void onHitEntity(EntityHitResult entityHitResult) {
-        if(this.getOwner() instanceof Player player && entityHitResult.getEntity() instanceof LivingEntity living && this.power != null && this.spell != null && this.context != null && TargetHelper.actionAllowed(TargetHelper.TargetingMode.DIRECT, TargetHelper.Intent.HARMFUL,player,entityHitResult.getEntity()) && FriendshipBracelet.PlayerFriendshipPredicate(player,living)) {
+        if(this.getOwner() instanceof PlayerEntity playerEntity && entityHitResult.getEntity() instanceof LivingEntity living && this.power != null && this.spell != null && this.context != null && TargetHelper.actionAllowed(TargetHelper.TargetingMode.DIRECT, TargetHelper.Intent.HARMFUL,player,entityHitResult.getEntity()) && FriendshipBracelet.PlayerFriendshipPredicate(player,living)) {
             for(int i = 1; i < 6; i++) {
                 EndersGaze endersGaze = new EndersGaze(SpellbladeNext.GAZEHITTER, this.getLevel(), player, entityHitResult.getEntity(), i);
                 endersGaze.setPos(entityHitResult.getEntity().getEyePosition());

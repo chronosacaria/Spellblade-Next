@@ -18,7 +18,6 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.spell_engine.api.item.ConfigurableAttributes;
-import net.spell_engine.api.item.weapon.StaffItem;
 import net.spell_engine.internals.SpellCast;
 import net.spell_engine.internals.SpellContainerHelper;
 import net.spell_engine.internals.SpellHelper;
@@ -53,7 +52,7 @@ public class Claymores extends SwordItem implements ConfigurableAttributes {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         for(ItemConfig.SpellAttribute school: this.getMagicSchools().stream().toList()) {
-            if(attacker instanceof Player player) {
+            if(attacker instanceof PlayerEntity playerEntity) {
                 //System.out.println(school.name);
                 MagicSchool actualSchool = MagicSchool.fromAttributeId(new ResourceLocation(SpellPowerMod.ID, school.name));
 

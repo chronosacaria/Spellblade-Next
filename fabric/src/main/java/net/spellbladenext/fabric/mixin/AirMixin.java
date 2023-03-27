@@ -2,15 +2,10 @@ package net.spellbladenext.fabric.mixin;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
-import net.spell_power.api.MagicSchool;
-import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
 import net.spellbladenext.entities.Eruption;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +19,7 @@ public class AirMixin {
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof Eruption)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.IRON_BLOCK) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.IRON_BLOCK) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 if(player.getInventory().contains(Items.IRON_BLOCK.getDefaultInstance())){
                     for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
                         ItemStack stack = player.getInventory().getItem(i);
@@ -44,7 +39,7 @@ public class AirMixin {
                 }
                 info.cancel();
             }
-            if(spellProjectile.getItem().getItem().equals(Items.COPPER_BLOCK) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.COPPER_BLOCK) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 if(player.getInventory().contains(Items.COPPER_BLOCK.getDefaultInstance())){
                     for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
                         ItemStack stack = player.getInventory().getItem(i);
@@ -63,7 +58,7 @@ public class AirMixin {
                 }
                 info.cancel();
             }
-            if(spellProjectile.getItem().getItem().equals(Items.GOLD_BLOCK) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.GOLD_BLOCK) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 if(player.getInventory().contains(Items.GOLD_BLOCK.getDefaultInstance())){
                     for(int i = 0; i < player.getInventory().getContainerSize(); ++i) {
                         ItemStack stack = player.getInventory().getItem(i);

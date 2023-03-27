@@ -1,10 +1,8 @@
 package net.spellbladenext.fabric;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.ArmedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.HumanoidArm;
 import net.spellbladenext.SpellbladeNext;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

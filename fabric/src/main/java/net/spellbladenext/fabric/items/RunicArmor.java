@@ -2,31 +2,20 @@ package net.spellbladenext.fabric.items;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.behavior.RandomSwim;
-import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.monster.Drowned;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.spell_engine.api.item.ConfigurableAttributes;
 import net.spell_power.api.MagicSchool;
-import net.spell_power.api.attributes.SpellAttributes;
 import net.spellbladenext.SpellbladeNext;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
 
 import java.util.UUID;
 
@@ -74,7 +63,7 @@ public class RunicArmor extends ArmorItem implements ConfigurableAttributes {
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
         if(!level.isClientSide()) {
             if(entity instanceof Player) {
-                Player player = (Player)entity;
+                PlayerEntity playerEntity = (Player)entity;
 
                 int amount = 0;
                 if(player.getInventory().getArmor(0).getItem() instanceof RunicArmor){

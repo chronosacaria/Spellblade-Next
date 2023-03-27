@@ -3,7 +3,7 @@ package net.spellbladenext.fabric.items;
 import net.minecraft.resources.ResourceLocation;
 import net.spellbladenext.fabric.config.ItemConfig;
 import net.spellbladenext.fabric.config.LootConfig;
-import net.spellbladenext.fabric.items.spellblades.Spellblades;
+import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 
 import java.util.List;
 
@@ -15,25 +15,25 @@ public class Default {
 
     static {
         itemConfig = new ItemConfig();
-        for (var weapon: Spellblades.entries) {
+        for (var weapon: SpellbladeItems.entries) {
             itemConfig.weapons.put(weapon.name(), weapon.defaults());
         }
-        for (var weapon: Spellblades.orbs) {
+        for (var weapon: SpellbladeItems.orbs) {
             itemConfig.weapons.put(weapon.name(), weapon.defaults());
         }
-        for (var weapon: Spellblades.claymores) {
+        for (var weapon: SpellbladeItems.claymores) {
             itemConfig.weapons.put(weapon.name(), weapon.defaults());
         }
-        for (var weapon: Spellblades.runedaggers) {
+        for (var weapon: SpellbladeItems.runedaggers) {
             itemConfig.weapons.put(weapon.name(), weapon.defaults());
         }
 
 
         lootConfig = new LootConfig();
         lootConfig.item_groups.put("spellblades", new LootConfig.ItemGroup(List.of(
-                Spellblades.fireBlade.id().toString(),
-                Spellblades.frostBlade.id().toString(),
-                Spellblades.arcaneBlade.id().toString()),
+                SpellbladeItems.fireBlade.id().toString(),
+                SpellbladeItems.frostBlade.id().toString(),
+                SpellbladeItems.arcaneBlade.id().toString()),
                 1
         ).chance(0.2F));
         lootConfig.item_groups.put("foci", new LootConfig.ItemGroup(List.of(
@@ -43,13 +43,13 @@ public class Default {
                 1
         ).chance(0.2F));
         lootConfig.item_groups.put("claymores", new LootConfig.ItemGroup(List.of(
-                Spellblades.arcaneClaymore.id().toString(),
-                Spellblades.fireClaymore.id().toString(),
-                Spellblades.frostClaymore.id().toString()),
+                SpellbladeItems.arcaneClaymore.id().toString(),
+                SpellbladeItems.fireClaymore.id().toString(),
+                SpellbladeItems.frostClaymore.id().toString()),
                 1
         ).chance(0.2F));
         lootConfig.item_groups.put("runedaggers", new LootConfig.ItemGroup(List.of(
-                Spellblades.runedagger.id().toString()),
+                SpellbladeItems.runedagger.id().toString()),
                 1
         ).chance(0.1F));
         lootConfig.item_groups.put("runic_armor", new LootConfig.ItemGroup(List.of(

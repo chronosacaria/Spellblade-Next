@@ -1,9 +1,9 @@
 package net.spellbladenext.forge;
 
 import dev.architectury.platform.forge.EventBuses;
-import net.spellbladenext.SpellbladeNext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.spellbladenext.SpellbladeNext;
 
 @Mod(SpellbladeNext.MOD_ID)
 public class ExampleModForge {

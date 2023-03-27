@@ -1,23 +1,18 @@
 package net.spellbladenext.fabric.mixin;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.ParticleBatch;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.client.SpellEngineClient;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.particle.ParticleHelper;
 import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.AmethystEntity;
 import net.spellbladenext.entities.CleansingFlameEntity;
 import net.spellbladenext.items.FriendshipBracelet;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +29,7 @@ public class cleansingfiremixin {
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof CleansingFlameEntity)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.BLAZE_ROD) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.BLAZE_ROD) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 Predicate<Entity> selectionPredicate = (target) -> {
                     return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
                             && FriendshipBracelet.PlayerFriendshipPredicate(player,target));

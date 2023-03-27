@@ -1,15 +1,12 @@
 package net.spellbladenext.effect;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.player.Player;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.internals.SpellCast;
 import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.internals.SpellRegistry;
 import net.spell_engine.particle.ParticleHelper;
@@ -18,7 +15,6 @@ import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.items.FriendshipBracelet;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -33,7 +29,7 @@ public class RunicBoon extends MobEffect {
         };
         List<Entity> targets = livingEntity.getLevel().getEntities(livingEntity,livingEntity.getBoundingBox().inflate(6),selectionPredicate);
         if(!livingEntity.getLevel().isClientSide()) {
-            if (livingEntity instanceof Player player ) {
+            if (livingEntity instanceof PlayerEntity playerEntity ) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "fireoverdrive"));
                 ;
                 ParticleHelper.sendBatches(livingEntity, spell.release.particles);
@@ -43,7 +39,7 @@ public class RunicBoon extends MobEffect {
                      SpellHelper.performImpacts(livingEntity.getLevel(),livingEntity, target,spell,new SpellHelper.ImpactContext(1.0F,1.0F,null, SpellPower.getSpellPower(MagicSchool.FIRE,livingEntity), TargetHelper.TargetingMode.AREA));
                 }
             }
-            if (livingEntity instanceof Player player ) {
+            if (livingEntity instanceof PlayerEntity playerEntity ) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "frostoverdrive"));
                 ParticleHelper.sendBatches(livingEntity, spell.release.particles);
                 SoundHelper.playSound(player.getLevel(), player, spell.release.sound);
@@ -51,7 +47,7 @@ public class RunicBoon extends MobEffect {
                 for(Entity target : targets){
                     SpellHelper.performImpacts(livingEntity.getLevel(),livingEntity, target,spell,new SpellHelper.ImpactContext(1.0F,1.0F,null, SpellPower.getSpellPower(MagicSchool.FROST,livingEntity), TargetHelper.TargetingMode.AREA));
                 }            }
-            if (livingEntity instanceof Player player ) {
+            if (livingEntity instanceof PlayerEntity playerEntity ) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "arcaneoverdrive"));
                 ParticleHelper.sendBatches(livingEntity, spell.release.particles);
                 SoundHelper.playSound(player.getLevel(), player, spell.release.sound);

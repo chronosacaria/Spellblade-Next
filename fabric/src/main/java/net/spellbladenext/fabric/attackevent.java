@@ -1,6 +1,5 @@
 package net.spellbladenext.fabric;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -10,7 +9,7 @@ public class attackevent implements piglinsummon {
     public int tickCount;
     public boolean done = false;
     Level level;
-    Player player;
+    PlayerEntity playerEntity;
     boolean firstTick;
 
     public attackevent(Level world, Player serverPlayer) {

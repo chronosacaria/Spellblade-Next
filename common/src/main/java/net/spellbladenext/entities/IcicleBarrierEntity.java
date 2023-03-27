@@ -9,7 +9,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -23,6 +22,7 @@ import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
 import net.spellbladenext.items.FriendshipBracelet;
+
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
@@ -41,7 +41,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, Level p_36722_, Player player) {
+    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, Level p_36722_, PlayerEntity playerEntity) {
         super(p_36721_, p_36722_);
         this.setOwner(player);
         Vec3 vec3 = player.getViewVector(0);
@@ -61,7 +61,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
     public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, Level p_36722_) {
         super(p_36721_, p_36722_);
         this.setNoGravity(true);
-        if(this.getOwner() != null && this.getOwner() instanceof Player player) {
+        if(this.getOwner() != null && this.getOwner() instanceof PlayerEntity playerEntity) {
 
             Vec3 vec3 = player.getViewVector(0);
             this.setNoGravity(true);
@@ -132,7 +132,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
                             this.setXRot((float)(Mth.atan2(vec3d.y, d0) * (double)(180F / (float)Math.PI))+45);
                         }*/
 
-        if (this.getOwner() instanceof Player player) {
+        if (this.getOwner() instanceof PlayerEntity playerEntity) {
             Predicate<Entity> selectionPredicate = (target) -> {
                 return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
                         && FriendshipBracelet.PlayerFriendshipPredicate(player,target));
@@ -158,7 +158,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
                                 intarray[2] = (int) Math.round(target.getBoundingBox().getCenter().z);
                                 Stream<ServerPlayer> serverplayers = level.getServer().getPlayerList().getPlayers().stream();
 
-                                for (ServerPlayer player2 : ((ServerLevel) level).getPlayers(serverPlayer -> serverPlayer.hasLineOfSight(this.getOwner()))) {
+                                for (ServerPlayerEntity playerEntity2 : ((ServerLevel) level).getPlayers(serverPlayer -> serverPlayer.hasLineOfSight(this.getOwner()))) {
                                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer()).writeVarIntArray(intarray);
                                     Random rand = new Random();
                                     Vec3 vec3 = target.getBoundingBox().getCenter().add(new Vec3(rand.nextDouble(-1, 1), rand.nextDouble(-1, 1), rand.nextDouble(-1, 1)));

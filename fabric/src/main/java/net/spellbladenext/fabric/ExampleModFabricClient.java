@@ -4,25 +4,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.ZombieModel;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.entity.*;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.monster.Husk;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.spell_engine.api.spell.Spell;
@@ -33,11 +19,9 @@ import net.spellbladenext.ClientMod;
 import net.spellbladenext.SpellbladeNext;
 import net.spellbladenext.entities.*;
 import net.spellbladenext.fabric.items.*;
-import software.bernie.example.registry.ItemRegistry;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
-import java.util.List;
 import java.util.Objects;
 
 import static net.spellbladenext.SpellbladeNext.MOD_ID;
@@ -48,7 +32,7 @@ public class ExampleModFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientMod.initialize();
         ClientTickEvents.START_CLIENT_TICK.register(server -> {
-            Player player = server.player;
+            PlayerEntity playerEntity = server.player;
             Level level = server.level;
             if (player != null && level != null && !player.isShiftKeyDown()) {
                 double speed = player.getAttributeValue(Attributes.MOVEMENT_SPEED) * player.getAttributeValue(SpellAttributes.HASTE.attribute)*0.01 * 4;

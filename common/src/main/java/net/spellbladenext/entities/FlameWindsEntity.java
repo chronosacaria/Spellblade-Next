@@ -1,36 +1,25 @@
 package net.spellbladenext.entities;
 
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.scores.PlayerTeam;
 import net.spell_engine.api.spell.Spell;
-import net.spell_engine.client.SpellEngineClient;
 import net.spell_engine.entity.SpellProjectile;
 import net.spell_engine.internals.SpellHelper;
 import net.spell_engine.utils.TargetHelper;
-import net.spell_power.api.MagicSchool;
-import net.spell_power.api.SpellDamageSource;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.items.FriendshipBracelet;
 
-import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
@@ -48,7 +37,7 @@ public class FlameWindsEntity extends SpellProjectile implements ItemSupplier {
         this.noPhysics = true;
 
     }
-    public FlameWindsEntity(EntityType<? extends FlameWindsEntity> entityType, Level level, Player player) {
+    public FlameWindsEntity(EntityType<? extends FlameWindsEntity> entityType, Level level, PlayerEntity playerEntity) {
         super(entityType, level);
         this.setOwner(player);
         this.setNoGravity(true);
@@ -91,7 +80,7 @@ public class FlameWindsEntity extends SpellProjectile implements ItemSupplier {
                 }
             }
         }
-        if(this.getOwner() instanceof Player player) {
+        if(this.getOwner() instanceof PlayerEntity playerEntity) {
             Predicate<Entity> selectionPredicate = (target) -> {
                 return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
                         && FriendshipBracelet.PlayerFriendshipPredicate(player,target));

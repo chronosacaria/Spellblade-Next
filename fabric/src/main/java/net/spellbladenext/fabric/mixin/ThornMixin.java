@@ -3,15 +3,11 @@ package net.spellbladenext.fabric.mixin;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.spell_engine.entity.SpellProjectile;
-import net.spell_engine.internals.SpellHelper;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.AmethystEntity;
-import net.spellbladenext.entities.EndersGazeEntity;
 import net.spellbladenext.entities.IceThorn;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,7 +20,7 @@ public class ThornMixin {
     private void setBounding(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof IceThorn)){
 
-            if(spellProjectile.getItem().getItem().equals(Items.SNOWBALL) && spellProjectile.getOwner() instanceof Player player) {
+            if(spellProjectile.getItem().getItem().equals(Items.SNOWBALL) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 for(int i = 0; i < 3; i++) {
                     IceThorn amethyst = new IceThorn(SpellbladeNext.ICETHORN, entity.getLevel(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()));

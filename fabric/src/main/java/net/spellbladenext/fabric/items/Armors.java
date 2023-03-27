@@ -5,18 +5,14 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.block.SoundType;
 import net.spell_engine.api.item.ItemConfig;
 import net.spell_engine.api.item.armor.Armor;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.attributes.SpellAttributes;
-import net.spell_power.internals.MagicProtectionEnchantment;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.fabric.items.RuneblazingArmor;
 import net.spellbladenext.items.ModArmorMaterials;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;

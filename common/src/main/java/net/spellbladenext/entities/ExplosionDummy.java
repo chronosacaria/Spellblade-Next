@@ -1,12 +1,8 @@
 package net.spellbladenext.entities;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
@@ -44,7 +40,7 @@ public class ExplosionDummy extends AbstractArrow implements ItemSupplier {
         if(this.firstTick){
             this.playSound(SoundEvents.BLAZE_SHOOT);
         }
-        if(this.tickCount >= 40 && !this.getLevel().isClientSide() && this.context != null && this.getOwner() instanceof Player player){
+        if(this.tickCount >= 40 && !this.getLevel().isClientSide() && this.context != null && this.getOwner() instanceof PlayerEntity playerEntity){
             this.discard();
             this.getLevel().explode(player,this.getX(),this.getY(),this.getZ(),(float)SpellPower.getSpellPower(MagicSchool.FIRE, player).nonCriticalValue()/3.666666F,false, Explosion.BlockInteraction.NONE);
         }
@@ -60,7 +56,7 @@ public class ExplosionDummy extends AbstractArrow implements ItemSupplier {
     }
 
     @Override
-    protected boolean tryPickup(Player player) {
+    protected boolean tryPickup(PlayerEntity playerEntity) {
         return false;
     }
 

@@ -2,7 +2,6 @@ package net.spellbladenext.fabric.mixin;
 
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.spellbladenext.fabric.HurtCallback;
 import org.spongepowered.asm.mixin.Mixin;
