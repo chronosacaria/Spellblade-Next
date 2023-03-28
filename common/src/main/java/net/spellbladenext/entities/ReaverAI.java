@@ -33,7 +33,7 @@ public class ReaverAI {
 
     public ReaverAI() {
     }
-    protected static Brain<?> makeBrain(Reaver piglinBrute, Brain<Reaver> brain) {
+    protected static Brain<?> makeBrain(ReaverEntity piglinBrute, Brain<ReaverEntity> brain) {
         initCoreActivity(piglinBrute, brain);
         initIdleActivity(piglinBrute, brain);
         initFightActivity(piglinBrute, brain);
@@ -43,34 +43,34 @@ public class ReaverAI {
         return brain;
     }
 
-    protected static void initMemories(Reaver piglinBrute) {
+    protected static void initMemories(ReaverEntity piglinBrute) {
         GlobalPos globalPos = GlobalPos.of(piglinBrute.level.dimension(), piglinBrute.blockPosition());
         piglinBrute.getBrain().setMemory(MemoryModuleType.HOME, globalPos);
     }
 
-    private static void initCoreActivity(Reaver piglinBrute, Brain<Reaver> brain) {
-        brain.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(),  new InteractWithDoor(), new StopBeingAngryIfTargetDead<Reaver>()));
+    private static void initCoreActivity(ReaverEntity piglinBrute, Brain<ReaverEntity> brain) {
+        brain.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(),  new InteractWithDoor(), new StopBeingAngryIfTargetDead<ReaverEntity>()));
     }
 
-    private static void initIdleActivity(Reaver piglinBrute, Brain<Reaver> brain) {
-        brain.addActivity(Activity.IDLE, 10, ImmutableList.of(new MoveToTargetSink(),new StartAttacking<Reaver>(ReaverAI::findNearestValidAttackTarget), createIdleLookBehaviors(), createIdleMovementBehaviors(), new SetLookAndInteract(EntityType.PLAYER, 4)));
+    private static void initIdleActivity(ReaverEntity piglinBrute, Brain<ReaverEntity> brain) {
+        brain.addActivity(Activity.IDLE, 10, ImmutableList.of(new MoveToTargetSink(),new StartAttacking<ReaverEntity>(ReaverAI::findNearestValidAttackTarget), createIdleLookBehaviors(), createIdleMovementBehaviors(), new SetLookAndInteract(EntityType.PLAYER, 4)));
     }
 
-    private static void initFightActivity(Reaver piglinBrute, Brain<Reaver> brain) {
-        brain.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.of(new StopAttackingIfTargetInvalid<Reaver>((livingEntity) -> {
+    private static void initFightActivity(ReaverEntity piglinBrute, Brain<ReaverEntity> brain) {
+        brain.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.of(new StopAttackingIfTargetInvalid<ReaverEntity>((livingEntity) -> {
             return !isNearestValidAttackTarget(piglinBrute, (LivingEntity) livingEntity);
-        }),new RunIf<Reaver>(asdf -> piglinBrute.isCaster() ,new BackUp<Reaver>(10, 0.75F)),  new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), new MeleeAttack(20),new SpellAttack<Reaver, LivingEntity>()), MemoryModuleType.ATTACK_TARGET);
+        }),new RunIf<ReaverEntity>(asdf -> piglinBrute.isCaster() ,new BackUp<ReaverEntity>(10, 0.75F)),  new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), new MeleeAttack(20),new SpellAttack<ReaverEntity, LivingEntity>()), MemoryModuleType.ATTACK_TARGET);
     }
 
-    private static RunOne<Reaver> createIdleLookBehaviors() {
+    private static RunOne<ReaverEntity> createIdleLookBehaviors() {
         return new RunOne(ImmutableList.of(Pair.of(new SetEntityLookTarget(EntityType.PLAYER, 8.0F), 1), Pair.of(new SetEntityLookTarget(EntityType.PIGLIN, 8.0F), 1), Pair.of(new SetEntityLookTarget(EntityType.PIGLIN_BRUTE, 8.0F), 1), Pair.of(new SetEntityLookTarget(8.0F), 1), Pair.of(new DoNothing(30, 60), 1)));
     }
 
-    private static RunOne<Reaver> createIdleMovementBehaviors() {
+    private static RunOne<ReaverEntity> createIdleMovementBehaviors() {
         return new RunOne(ImmutableList.of(Pair.of(new RandomStroll(0.6F), 2), Pair.of(InteractWith.of(EntityType.PIGLIN, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(InteractWith.of(EntityType.PIGLIN_BRUTE, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(new StrollToPoi(MemoryModuleType.HOME, 0.6F, 2, 100), 2), Pair.of(new StrollAroundPoi(MemoryModuleType.HOME, 0.6F, 5), 2), Pair.of(new DoNothing(30, 60), 1)));
     }
 
-    protected static void updateActivity(Reaver piglinBrute) {
+    protected static void updateActivity(ReaverEntity piglinBrute) {
         Brain<?> brain = piglinBrute.getBrain();
         Activity activity = (Activity)brain.getActiveNonCoreActivity().orElse((Activity) null);
         //System.out.println(activity);
@@ -83,16 +83,16 @@ public class ReaverAI {
         piglinBrute.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
     }
 
-    private static boolean isNearestValidAttackTarget(Reaver reaver, LivingEntity livingEntity) {
-            if(reaver.isScout() && reaver.getMainHandItem().isEmpty()){
+    private static boolean isNearestValidAttackTarget(ReaverEntity reaverEntity, LivingEntity livingEntity) {
+            if(reaverEntity.isScout() && reaverEntity.getMainHandItem().isEmpty()){
                 return false;
             }
-        return findNearestValidAttackTarget(reaver).filter((livingEntity2) -> {
+        return findNearestValidAttackTarget(reaverEntity).filter((livingEntity2) -> {
             return livingEntity2 == livingEntity;
         }).isPresent();
     }
 
-    static Optional<? extends LivingEntity> findNearestValidAttackTarget(Reaver abstractPiglin) {
+    static Optional<? extends LivingEntity> findNearestValidAttackTarget(ReaverEntity abstractPiglin) {
             if(abstractPiglin.isScout() && abstractPiglin.getMainHandItem().isEmpty()){
                 return Optional.empty();
             }
@@ -106,18 +106,18 @@ public class ReaverAI {
         }
     }
 
-    private static Optional<? extends LivingEntity> getTargetIfWithinRange(Reaver abstractPiglin, MemoryModuleType<? extends LivingEntity> memoryModuleType) {
+    private static Optional<? extends LivingEntity> getTargetIfWithinRange(ReaverEntity abstractPiglin, MemoryModuleType<? extends LivingEntity> memoryModuleType) {
         return abstractPiglin.getBrain().getMemory(memoryModuleType).filter((livingEntity) -> {
             return livingEntity.closerThan(abstractPiglin, 36);
         });
     }
 
-    protected static void wasHurtBy(Reaver piglinBrute, LivingEntity livingEntity) {
+    protected static void wasHurtBy(ReaverEntity piglinBrute, LivingEntity livingEntity) {
         if (!(livingEntity instanceof AbstractPiglin)) {
             maybeRetaliate(piglinBrute, livingEntity);
         }
     }
-    protected static void maybeRetaliate(Reaver abstractPiglin, LivingEntity livingEntity) {
+    protected static void maybeRetaliate(ReaverEntity abstractPiglin, LivingEntity livingEntity) {
         if (!abstractPiglin.getBrain().isActive(Activity.AVOID)) {
             if (Sensor.isEntityAttackableIgnoringLineOfSight(abstractPiglin, livingEntity)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(abstractPiglin, livingEntity, 4.0D)) {
@@ -133,7 +133,7 @@ public class ReaverAI {
             }
         }
     }
-    protected static void broadcastUniversalAnger(Reaver abstractPiglin) {
+    protected static void broadcastUniversalAnger(ReaverEntity abstractPiglin) {
         getAdultPiglins(abstractPiglin).forEach((abstractPiglinx) -> {
             getNearestVisibleTargetablePlayer(abstractPiglinx).ifPresent((player) -> {
                 setAngerTarget(abstractPiglinx, player);
@@ -141,25 +141,25 @@ public class ReaverAI {
         });
     }
 
-    private static List<Reaver> getAdultPiglins(Reaver abstractPiglin) {
+    private static List<ReaverEntity> getAdultPiglins(ReaverEntity abstractPiglin) {
         return (List)abstractPiglin.getBrain().getMemory(MemoryModuleType.NEARBY_ADULT_PIGLINS).orElse(ImmutableList.of());
     }
-    protected static void broadcastAngerTarget(Reaver abstractPiglin, LivingEntity livingEntity) {
+    protected static void broadcastAngerTarget(ReaverEntity abstractPiglin, LivingEntity livingEntity) {
         getAdultPiglins(abstractPiglin).forEach((abstractPiglinx) -> {
                 setAngerTargetIfCloserThanCurrent(abstractPiglinx, livingEntity);
         });
     }
-    private static Optional<LivingEntity> getAngerTarget(Reaver abstractPiglin) {
+    private static Optional<LivingEntity> getAngerTarget(ReaverEntity abstractPiglin) {
         return BehaviorUtils.getLivingEntityFromUUIDMemory(abstractPiglin, MemoryModuleType.ANGRY_AT);
     }
-    private static void setAngerTargetIfCloserThanCurrent(Reaver abstractPiglin, LivingEntity livingEntity) {
+    private static void setAngerTargetIfCloserThanCurrent(ReaverEntity abstractPiglin, LivingEntity livingEntity) {
         Optional<LivingEntity> optional = getAngerTarget(abstractPiglin);
         LivingEntity livingEntity2 = BehaviorUtils.getNearestTarget(abstractPiglin, optional, livingEntity);
         if (!optional.isPresent() || optional.get() != livingEntity2) {
             setAngerTarget(abstractPiglin, livingEntity2);
         }
     }
-    private static void setAngerTargetToNearestTargetablePlayerIfFound(Reaver abstractPiglin, LivingEntity livingEntity) {
+    private static void setAngerTargetToNearestTargetablePlayerIfFound(ReaverEntity abstractPiglin, LivingEntity livingEntity) {
         Optional<Player> optional = getNearestVisibleTargetablePlayer(abstractPiglin);
         if (optional.isPresent()) {
             setAngerTarget(abstractPiglin, (LivingEntity)optional.get());
@@ -168,22 +168,22 @@ public class ReaverAI {
         }
 
     }
-    public static Optional<Player> getNearestVisibleTargetablePlayer(Reaver abstractPiglin) {
+    public static Optional<Player> getNearestVisibleTargetablePlayer(ReaverEntity abstractPiglin) {
         return abstractPiglin.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER) ? abstractPiglin.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER) : Optional.empty();
     }
-    protected static void setAngerTarget(Reaver piglinBrute, LivingEntity livingEntity) {
+    protected static void setAngerTarget(ReaverEntity piglinBrute, LivingEntity livingEntity) {
         piglinBrute.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
         piglinBrute.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, livingEntity.getUUID(), 600L);
     }
 
-    protected static void maybePlayActivitySound(Reaver piglinBrute) {
+    protected static void maybePlayActivitySound(ReaverEntity piglinBrute) {
         if ((double)piglinBrute.level.random.nextFloat() < 0.0125D) {
             playActivitySound(piglinBrute);
         }
 
     }
 
-    private static void playActivitySound(Reaver piglinBrute) {
+    private static void playActivitySound(ReaverEntity piglinBrute) {
         piglinBrute.getBrain().getActiveNonCoreActivity().ifPresent((activity) -> {
 
 

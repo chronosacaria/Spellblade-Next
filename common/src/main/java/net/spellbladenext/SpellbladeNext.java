@@ -41,9 +41,9 @@ public class SpellbladeNext {
     public static final ItemGroup EXAMPLE_TAB = CreativeTabRegistry.create(new Identifier(MOD_ID, "example_tab"), () ->
             new ItemStack(SPELLBLADE_DUMMY.get()));
 
-    public static final EntityType<AmethystEntity> AMETHYST;
+    public static final EntityType<AmethystPersistentProjectileEntity> AMETHYST;
 
-    public static final EntityType<AmethystEntity2> AMETHYST2;
+    public static final EntityType<AmethystSpellProjectileEntity> AMETHYST_SPELL_PROJECTILE_ENTITY;
     public static final Supplier<Ingredient> WOOL_INGREDIENTS = () -> Ingredient.ofItems(
             Items.WHITE_WOOL,
             Items.ORANGE_WOOL,
@@ -62,17 +62,17 @@ public class SpellbladeNext {
             Items.RED_WOOL,
             Items.BLACK_WOOL);
     public static final EntityType<CleansingFlameEntity> CLEANSING_FLAME_ENTITY_ENTITY_TYPE;
-    public static final EntityType<Eruption> ERUPTION_ENTITY_TYPE;
+    public static final EntityType<EruptionSpellProjectile> ERUPTION_ENTITY_TYPE;
 
-    public static final EntityType<FlameWindsEntity> FLAME_WINDS_ENTITY_ENTITY_TYPE;
-    public static final EntityType<EndersGazeEntity> ENDERS_GAZE_ENTITY_ENTITY_TYPE;
+    public static final EntityType<FlameWindsSpellProjectile> FLAME_WINDS_ENTITY_ENTITY_TYPE;
+    public static final EntityType<EndersGazeSpellProjectile> ENDERS_GAZE_ENTITY_ENTITY_TYPE;
 
-    public static final EntityType<EndersGaze> ENDERS_GAZE_ENTITY_TYPE;
+    public static final EntityType<EndersGazeCirclingSpellProjectile> ENDERS_GAZE_ENTITY_TYPE;
 
     public static final EntityType<MagmaOrbEntity> MAGMA_ORB_ENTITY_ENTITY_TYPE;
-    public static final EntityType<IceThorn> ICE_THORN_ENTITY_TYPE;
-    public static final EntityType<ExplosionDummy> EXPLOSION_DUMMY_ENTITY_TYPE;
-    public static final EntityType<ExplosionDummy> REAL_EXPLOSION_DUMMY_ENTITY_TYPE;
+    public static final EntityType<IceThornSpellProjectile> ICE_THORN_ENTITY_TYPE;
+    public static final EntityType<ExplosionPersistentProjectileEntity> EXPLOSION_DUMMY_ENTITY_TYPE;
+    public static final EntityType<ExplosionPersistentProjectileEntity> REAL_EXPLOSION_DUMMY_ENTITY_TYPE;
 
 
     public static final EntityType<IcicleBarrierEntity> ICICLE_BARRIER_ENTITY_ENTITY_TYPE;

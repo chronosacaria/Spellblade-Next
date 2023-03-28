@@ -1,6 +1,6 @@
 package net.spellbladenext.mixin;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerLevel.class)
+@Mixin(ServerWorld.class)
 public class BouncingMixin {
     @Inject(at = @At("HEAD"), method = "addFreshEntity", cancellable = true)
     private void setBounding(Entity entity, CallbackInfoReturnable<Boolean> info) {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof MagmaOrbEntity)){
 
             if(spellProjectile.getItem().getItem().equals(Items.FIRE_CHARGE) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
-                    MagmaOrbEntity amethyst = new MagmaOrbEntity(SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE, entity.getLevel(), player);
+                    MagmaOrbEntity amethyst = new MagmaOrbEntity(SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE, entity.getWorld(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()));
                     amethyst.setDeltaMovement(player.getViewVector(1).multiply(0.5, 0.5, 0.5));
                     amethyst.setOwner(player);
@@ -33,7 +33,7 @@ public class BouncingMixin {
 
                 amethyst.spell = spellProjectile.getSpell();
                 amethyst.context = spellProjectile.getImpactContext();
-                    entity.getLevel().addFreshEntity(amethyst);
+                    entity.getWorld().addFreshEntity(amethyst);
 
                 info.cancel();
             }

@@ -3,7 +3,7 @@ package net.spellbladenext.entities;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -41,7 +41,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, Level p_36722_, PlayerEntity playerEntity) {
+    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, World p_36722_, PlayerEntity playerEntity) {
         super(p_36721_, p_36722_);
         this.setOwner(player);
         Vec3 vec3 = player.getViewVector(0);
@@ -58,7 +58,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
         return Behaviour.FLY;
     }
 
-    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, Level p_36722_) {
+    public IcicleBarrierEntity(EntityType<? extends IcicleBarrierEntity> p_36721_, World p_36722_) {
         super(p_36721_, p_36722_);
         this.setNoGravity(true);
         if(this.getOwner() != null && this.getOwner() instanceof PlayerEntity playerEntity) {
@@ -81,9 +81,9 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
         this.xOld = this.getX();
         this.yOld = this.getY();
         this.zOld = this.getZ();
-        //ParticleHelper.play(this.getLevel(),this,this.getXRot(),this.getYRot(), new ParticleBatch("spell_engine:snowflake", ParticleBatch.Shape.CIRCLE, ParticleBatch.Origin.CENTER, ParticleBatch.Rotation.LOOK,3,0,0,0));
+        //ParticleHelper.play(this.getWorld(),this,this.getXRot(),this.getYRot(), new ParticleBatch("spell_engine:snowflake", ParticleBatch.Shape.CIRCLE, ParticleBatch.Origin.CENTER, ParticleBatch.Rotation.LOOK,3,0,0,0));
 
-        if(this.tickCount > 50 && !this.getLevel().isClientSide()){
+        if(this.tickCount > 50 && !this.getWorld().isClientSide()){
             this.discard();
         }
         if(this.getOwner() == null){
@@ -139,14 +139,14 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
             };
             Spell.Release.Target.Area area = new Spell.Release.Target.Area();
             area.angle_degrees = 360;
-            List<Entity> entities = this.getLevel().getEntitiesOfClass(Entity.class,this.getBoundingBox().inflate(1),selectionPredicate);
+            List<Entity> entities = this.getWorld().getEntitiesOfClass(Entity.class,this.getBoundingBox().inflate(1),selectionPredicate);
             entities.removeIf(asdf -> asdf == this);
             if (!entities.isEmpty()) {
                 if (this.power != null && this.spell != null && this.context != null) {
                     for (Entity target : entities) {
                         if (target != null && this.getOwner() instanceof LivingEntity living && target != this.getOwner()) {
                             if (target.invulnerableTime <= 10) {
-                                SpellHelper.performImpacts(this.getLevel(), living, target, this.spell, this.context);
+                                SpellHelper.performImpacts(this.getWorld(), living, target, this.spell, this.context);
                                 target.invulnerableTime = 20;
 
                             }
@@ -158,14 +158,14 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
                                 intarray[2] = (int) Math.round(target.getBoundingBox().getCenter().z);
                                 Stream<ServerPlayer> serverplayers = level.getServer().getPlayerList().getPlayers().stream();
 
-                                for (ServerPlayerEntity playerEntity2 : ((ServerLevel) level).getPlayers(serverPlayer -> serverPlayer.hasLineOfSight(this.getOwner()))) {
+                                for (ServerPlayerEntity playerEntity2 : ((ServerWorld) level).getPlayers(serverPlayer -> serverPlayer.hasLineOfSight(this.getOwner()))) {
                                     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer()).writeVarIntArray(intarray);
                                     Random rand = new Random();
                                     Vec3 vec3 = target.getBoundingBox().getCenter().add(new Vec3(rand.nextDouble(-1, 1), rand.nextDouble(-1, 1), rand.nextDouble(-1, 1)));
-                                    ((ServerLevel) level).sendParticles(ParticleTypes.SWEEP_ATTACK, vec3.x(), vec3.y(), vec3.z(), 1, 0, 0, 0, 0);
+                                    ((ServerWorld) level).sendParticles(ParticleTypes.SWEEP_ATTACK, vec3.x(), vec3.y(), vec3.z(), 1, 0, 0, 0, 0);
                                 }
                             }
-                            //this.getLevel().playSound((Player) null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, this.getOwner().getSoundSource(), 0.25F, 1.0F);
+                            //this.getWorld().playSound((Player) null, target.getX(), target.getY(), target.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, this.getOwner().getSoundSource(), 0.25F, 1.0F);
                             //this.getOwner().playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 0.005F, 1.0F);
 
 

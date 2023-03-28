@@ -136,7 +136,7 @@ public class SpellbladeItems {
     public static class Material implements ToolMaterial {
         public static Material matching(ToolMaterial vanillaMaterial, Item repairIngredient) {
             var material = new Material();
-            material.miningLevel = vanillaMaterial.getMiningLevel();
+            material.miningWorld = vanillaMaterial.getMiningWorld();
             material.durability = vanillaMaterial.getDurability();
             material.miningSpeed = vanillaMaterial.getMiningSpeedMultiplier();
             material.enchantability = vanillaMaterial.getEnchantability();
@@ -144,7 +144,7 @@ public class SpellbladeItems {
             return material;
         }
 
-        private int miningLevel = 0;
+        private int miningWorld = 0;
         private int durability = 0;
         private float miningSpeed = 0;
         private int enchantability = 0;
@@ -166,8 +166,8 @@ public class SpellbladeItems {
         }
 
         @Override
-        public int getMiningLevel() {
-            return miningLevel;
+        public int getMiningWorld() {
+            return miningWorld;
         }
 
         @Override

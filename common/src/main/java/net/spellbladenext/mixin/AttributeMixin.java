@@ -2,7 +2,7 @@ package net.spellbladenext.mixin;
 
 /*@Mixin(LivingEntity.class)
 abstract  class AttributeMixin extends Entity {
-    AttributeMixin(final EntityType<?> type, final Level world) {
+    AttributeMixin(final EntityType<?> type, final World world) {
         super(type, world);
     }
 

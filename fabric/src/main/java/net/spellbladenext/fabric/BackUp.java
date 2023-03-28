@@ -1,7 +1,7 @@
 package net.spellbladenext.fabric;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -21,11 +21,11 @@ public class BackUp<E extends Mob> extends Behavior<E> {
         this.strafeSpeed = f;
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, E mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, E mob) {
         return this.isTargetVisible(mob) && this.isTargetTooClose(mob);
     }
 
-    protected void start(ServerLevel serverLevel, E mob, long l) {
+    protected void start(ServerWorld serverWorld, E mob, long l) {
         //System.out.println("backing up!");
         mob.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.getTarget(mob), true));
         mob.getMoveControl().strafe(-this.strafeSpeed, 0.0F);

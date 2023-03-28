@@ -1,23 +1,23 @@
 package net.spellbladenext.mixin;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.spell_engine.entity.SpellProjectile;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.Eruption;
+import net.spellbladenext.entities.EruptionSpellProjectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerLevel.class)
+@Mixin(ServerWorld.class)
 public class AirMixin {
     @Inject(at = @At("HEAD"), method = "addFreshEntity", cancellable = true)
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
-        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof Eruption)){
+        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof EruptionSpellProjectile)){
 
             if(spellProjectile.getItem().getItem().equals(Items.IRON_BLOCK) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
                 if(player.getInventory().contains(Items.IRON_BLOCK.getDefaultInstance())){
@@ -31,8 +31,8 @@ public class AirMixin {
                             ItemStack stack1 = SpellbladeNext.RUNEFROSTED_INGOT.get().getDefaultInstance();
                             stack1.setCount(4);
 
-                            ItemEntity entity1 = new ItemEntity(player.getLevel(),player.getX(),player.getY(),player.getZ(),stack1);
-                            player.getLevel().addFreshEntity(entity1);
+                            ItemEntity entity1 = new ItemEntity(player.getWorld(),player.getX(),player.getY(),player.getZ(),stack1);
+                            player.getWorld().addFreshEntity(entity1);
                             break;
                         }
                     }
@@ -50,8 +50,8 @@ public class AirMixin {
                             }
                             ItemStack stack1 = SpellbladeNext.RUNEBLAZE_PLATING.get().getDefaultInstance();
                             stack1.setCount(4);
-                            ItemEntity entity1 = new ItemEntity(player.getLevel(),player.getX(),player.getY(),player.getZ(),stack1);
-                            player.getLevel().addFreshEntity(entity1);
+                            ItemEntity entity1 = new ItemEntity(player.getWorld(),player.getX(),player.getY(),player.getZ(),stack1);
+                            player.getWorld().addFreshEntity(entity1);
                             break;
                         }
                     }
@@ -69,8 +69,8 @@ public class AirMixin {
                             }
                             ItemStack stack1 = SpellbladeNext.RUNEGLINTPLATING.get().getDefaultInstance();
                             stack1.setCount(4);
-                            ItemEntity entity1 = new ItemEntity(player.getLevel(),player.getX(),player.getY(),player.getZ(),stack1);
-                            player.getLevel().addFreshEntity(entity1);
+                            ItemEntity entity1 = new ItemEntity(player.getWorld(),player.getX(),player.getY(),player.getZ(),stack1);
+                            player.getWorld().addFreshEntity(entity1);
                             break;
                         }
                     }

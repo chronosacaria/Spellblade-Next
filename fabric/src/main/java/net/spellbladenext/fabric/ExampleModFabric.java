@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.stats.StatFormatter;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
@@ -29,7 +29,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.material.Material;
@@ -50,6 +50,8 @@ import net.spellbladenext.entities.*;
 import net.spellbladenext.blocks.Hexblade;
 import net.spellbladenext.config.ItemConfig;
 import net.spellbladenext.config.LootConfig;
+import net.spellbladenext.entities.ColdAttackEntity;
+import net.spellbladenext.events.AttackEvent;
 import net.spellbladenext.fabric.items.*;
 import net.spellbladenext.items.Offering;
 import net.spellbladenext.items.Orbs;
@@ -71,20 +73,20 @@ import static net.spellbladenext.SpellbladeNext.*;
 
 public class ExampleModFabric implements ModInitializer {
 
-    public static ArrayList<attackevent> attackeventArrayList = new ArrayList<>();
+    public static ArrayList<AttackEvent> attackEventArrayList = new ArrayList<>();
     public static final Item NETHERDEBUG = new DebugNetherPortal(new FabricItemSettings().group(EXAMPLE_TAB).stacksTo(1));;
     public static final ResourceLocation SINCELASTHEX = new ResourceLocation(MOD_ID, "lasthextime");
     public static final ResourceLocation HEXRAID = new ResourceLocation(MOD_ID, "hex");
-    public static final EntityType<Reaver> REAVER;
-    public static final EntityType<Magus> MAGUS;
+    public static final EntityType<ReaverEntity> REAVER;
+    public static final EntityType<MagusEntity> MAGUS;
 
-    public static final EntityType<ColdAttack> COLDATTACK;
+    public static final EntityType<ColdAttackEntity> COLDATTACK;
     public static RegistrySupplier<Item> OFFERING = ITEMS.register("offering", () ->
             new Offering(new Item.Properties().tab(EXAMPLE_TAB)));
     public static RegistrySupplier<Item> PRISMATICEFFIGY = ITEMS.register("prismaticeffigy", () ->
             new PrismaticEffigy(new Item.Properties().tab(EXAMPLE_TAB)));
 
-    public static final EntityType<SpinAttack> SPIN;
+    public static final EntityType<SpinAttackEntity> SPIN;
     public static DeferredRegister<MobEffect> MOBEFFECTS = DeferredRegister.create(MOD_ID, Registry.MOB_EFFECT_REGISTRY);
 
     public static RegistrySupplier<MobEffect> HEX = MOBEFFECTS.register("hex", () ->  new Hex(MobEffectCategory.HARMFUL, 0x64329F));
@@ -197,15 +199,15 @@ public class ExampleModFabric implements ModInitializer {
 */
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             for(ServerPlayerEntity playerEntity : server.getPlayerList().getPlayers()){
-                if (((int) (player.getLevel().getDayTime() % 24000L)) % 1200 == 0) {
+                if (((int) (player.getWorld().getDayTime() % 24000L)) % 1200 == 0) {
 
-                    if(player.getLevel().getGameRules().getBoolean(SHOULD_INVADE) && player.getStats().getValue(Stats.CUSTOM.get(HEXRAID)) > 0) {
+                    if(player.getWorld().getGameRules().getBoolean(SHOULD_INVADE) && player.getStats().getValue(Stats.CUSTOM.get(HEXRAID)) > 0) {
 
                         player.awardStat(SINCELASTHEX, 1);
 
                         if (!player.hasEffect(HEX.get()) && player.getStats().getValue(Stats.CUSTOM.get(SINCELASTHEX)) > 10 && player.getRandom().nextFloat() < 0.01 * (player.getStats().getValue(Stats.CUSTOM.get(HEXRAID))/100F) * Math.pow((1.02930223664), player.getStats().getValue(Stats.CUSTOM.get(SINCELASTHEX)))) {
                             Optional<BlockPos> pos2 = BlockPos.findClosestMatch(player.blockPosition(),64,128,
-                                    asdf -> player.getLevel().getBlockState(asdf).getBlock().equals(HEXBLADE));
+                                    asdf -> player.getWorld().getBlockState(asdf).getBlock().equals(HEXBLADE));
                             if(pos2.isPresent() || player.getInventory().hasAnyOf(Set.of(Item.BY_BLOCK.get(HEXBLADE)))){
                                 player.sendSystemMessage(Component.translatable("Your triumph is respected."));
                             }
@@ -217,8 +219,8 @@ public class ExampleModFabric implements ModInitializer {
                     player.getStats().setValue(player,Stats.CUSTOM.get(HEXRAID),0);
                 }
             }
-            attackeventArrayList.removeIf(attackevent -> attackevent.tickCount > 500 || attackevent.done);
-            for (attackevent attackEvent : attackeventArrayList) {
+            attackEventArrayList.removeIf(AttackEvent -> AttackEvent.tickCount > 500 || AttackEvent.done);
+            for (AttackEvent attackEvent : attackEventArrayList) {
                 attackEvent.tick();
             }
         });
@@ -231,11 +233,11 @@ public class ExampleModFabric implements ModInitializer {
         });
 
         ServerTickEvents.START_SERVER_TICK.register(server -> {
-            for(ServerLevel level : server.getAllLevels()) {
+            for(ServerWorld level : server.getAllWorlds()) {
                 for (SpellProjectile projectile : level.getEntities(EntityTypeTest.forClass(SpellProjectile.class), asdf -> asdf instanceof SpellProjectile)) {
                     if (projectile.getSpell() != null && projectile.getOwner() instanceof PlayerEntity playerEntity && projectile.getSpell().equals(SpellRegistry.getSpell(new ResourceLocation(MOD_ID, "magic_missile")))) {
                         if (projectile.tickCount >= 20) {
-                            List<LivingEntity> living = projectile.getLevel().getEntitiesOfClass(LivingEntity.class, projectile.getBoundingBox().inflate(32));
+                            List<LivingEntity> living = projectile.getWorld().getEntitiesOfClass(LivingEntity.class, projectile.getBoundingBox().inflate(32));
                             living.removeIf(living1 -> !living1.hasLineOfSight(projectile));
                             Predicate<Entity> selectionPredicate = (target) -> {
                                 return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
@@ -250,7 +252,7 @@ public class ExampleModFabric implements ModInitializer {
                             }
                             int iii = 0;
                             while (!living.isEmpty() && targeted.size() < 3 && iii < 3) {
-                                Optional.ofNullable(projectile.getLevel().getNearestEntity(living, TargetingConditions.forNonCombat(), player, projectile.getX(), projectile.getY(), projectile.getZ()))
+                                Optional.ofNullable(projectile.getWorld().getNearestEntity(living, TargetingConditions.forNonCombat(), player, projectile.getX(), projectile.getY(), projectile.getZ()))
                                         .ifPresent(asdf -> {targeted.add(asdf); living.remove(asdf);});
                                 iii++;
                             }
@@ -262,7 +264,7 @@ public class ExampleModFabric implements ModInitializer {
                                 Vec3 launchPoint = projectile.position();
                                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(MOD_ID, "magic_missile_shard"));
                                 SpellHelper.ImpactContext context = new SpellHelper.ImpactContext(1, 1.0F, (Vec3) null, SpellPower.getSpellPower(spell.school, player), impactTargetingMode(spell));
-                                SpellProjectile projectile2 = new SpellProjectile(projectile.getLevel(), player, launchPoint.x(), launchPoint.y(), launchPoint.z(), SpellProjectile.Behaviour.FLY, spell, asdf, context);
+                                SpellProjectile projectile2 = new SpellProjectile(projectile.getWorld(), player, launchPoint.x(), launchPoint.y(), launchPoint.z(), SpellProjectile.Behaviour.FLY, spell, asdf, context);
                                 Spell.ProjectileData projectileData = spell.release.target.projectile;
 
                                 float velocity = projectileData.velocity;
@@ -277,7 +279,7 @@ public class ExampleModFabric implements ModInitializer {
                                 projectile2.range = spell.range*4;
                                 projectile2.getViewXRot(projectile.getXRot());
                                 projectile2.setYRot(projectile.getYRot());
-                                projectile.getLevel().addFreshEntity(projectile2);
+                                projectile.getWorld().addFreshEntity(projectile2);
                             }
                             projectile.discard();
 
@@ -300,7 +302,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.AMETHYST = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "amethyst"),
-                FabricEntityTypeBuilder.<AmethystEntity>create(MobCategory.MISC, AmethystEntity::new)
+                FabricEntityTypeBuilder.<AmethystPersistentProjectileEntity>create(MobCategory.MISC, AmethystPersistentProjectileEntity::new)
                         .dimensions(EntityDimensions.fixed(0.25F, 0.25F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -309,7 +311,7 @@ public class ExampleModFabric implements ModInitializer {
         SPIN = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "shade"),
-                FabricEntityTypeBuilder.<SpinAttack>create(MobCategory.MISC, SpinAttack::new)
+                FabricEntityTypeBuilder.<SpinAttackEntity>create(MobCategory.MISC, SpinAttackEntity::new)
                         .dimensions(EntityDimensions.fixed(0.6F, 2F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -318,16 +320,16 @@ public class ExampleModFabric implements ModInitializer {
         COLDATTACK = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "coldattack"),
-                FabricEntityTypeBuilder.<ColdAttack>create(MobCategory.MISC, ColdAttack::new)
+                FabricEntityTypeBuilder.<ColdAttackEntity>create(MobCategory.MISC, ColdAttackEntity::new)
                         .dimensions(EntityDimensions.fixed(0.6F, 2F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.AMETHYST2 = Registry.register(
+        SpellbladeNext.AMETHYST_SPELL_PROJECTILE_ENTITY = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "amethyst2"),
-                FabricEntityTypeBuilder.<AmethystEntity2>create(MobCategory.MISC, AmethystEntity2::new)
+                FabricEntityTypeBuilder.<AmethystSpellProjectileEntity>create(MobCategory.MISC, AmethystSpellProjectileEntity::new)
                         .dimensions(EntityDimensions.fixed(0.25F, 0.25F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -345,7 +347,7 @@ public class ExampleModFabric implements ModInitializer {
         REAVER = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "reaver"),
-                FabricEntityTypeBuilder.<Reaver>create(MobCategory.MISC, Reaver::new)
+                FabricEntityTypeBuilder.<ReaverEntity>create(MobCategory.MISC, ReaverEntity::new)
                         .dimensions(EntityDimensions.fixed(1F, 2F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -354,7 +356,7 @@ public class ExampleModFabric implements ModInitializer {
         MAGUS = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "magus"),
-                FabricEntityTypeBuilder.<Magus>create(MobCategory.MISC, Magus::new)
+                FabricEntityTypeBuilder.<MagusEntity>create(MobCategory.MISC, MagusEntity::new)
                         .dimensions(EntityDimensions.fixed(1F, 2F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -390,7 +392,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "flamewinds"),
-                FabricEntityTypeBuilder.<FlameWindsEntity>create(MobCategory.MISC, FlameWindsEntity::new)
+                FabricEntityTypeBuilder.<FlameWindsSpellProjectile>create(MobCategory.MISC, FlameWindsSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(1F, 1F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -408,7 +410,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.ERUPTION_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "eruption"),
-                FabricEntityTypeBuilder.<Eruption>create(MobCategory.MISC, Eruption::new)
+                FabricEntityTypeBuilder.<EruptionSpellProjectile>create(MobCategory.MISC, EruptionSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(0.5F, 0.5F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -417,22 +419,22 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.ENDERS_GAZE_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "gaze"),
-                FabricEntityTypeBuilder.<EndersGazeEntity>create(MobCategory.MISC, EndersGazeEntity::new)
+                FabricEntityTypeBuilder.<EndersGazeSpellProjectile>create(MobCategory.MISC, EndersGazeSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(0.5F, 0.5F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
                         .build()
         );
-        FabricDefaultAttributeRegistry.register(REAVER,Reaver.createReaverAttributes());
-        FabricDefaultAttributeRegistry.register(MAGUS,Magus.createAttributes());
+        FabricDefaultAttributeRegistry.register(REAVER, ReaverEntity.createReaverAttributes());
+        FabricDefaultAttributeRegistry.register(MAGUS, MagusEntity.createAttributes());
 
-        FabricDefaultAttributeRegistry.register(SPIN,SpinAttack.createReaverAttributes());
-        FabricDefaultAttributeRegistry.register(COLDATTACK,ColdAttack.createReaverAttributes());
+        FabricDefaultAttributeRegistry.register(SPIN, SpinAttackEntity.createReaverAttributes());
+        FabricDefaultAttributeRegistry.register(COLDATTACK, ColdAttackEntity.createReaverAttributes());
 
         SpellbladeNext.ENDERS_GAZE_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "gazehitter"),
-                FabricEntityTypeBuilder.<EndersGaze>create(MobCategory.MISC, EndersGaze::new)
+                FabricEntityTypeBuilder.<EndersGazeCirclingSpellProjectile>create(MobCategory.MISC, EndersGazeCirclingSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(0.5F, 0.5F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -441,7 +443,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.ICE_THORN_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "icethorn"),
-                FabricEntityTypeBuilder.<IceThorn>create(MobCategory.MISC, IceThorn::new)
+                FabricEntityTypeBuilder.<IceThornSpellProjectile>create(MobCategory.MISC, IceThornSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(0.5F, 0.5F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -450,7 +452,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "explosion"),
-                FabricEntityTypeBuilder.<ExplosionDummy>create(MobCategory.MISC, ExplosionDummy::new)
+                FabricEntityTypeBuilder.<ExplosionPersistentProjectileEntity>create(MobCategory.MISC, ExplosionPersistentProjectileEntity::new)
                         .dimensions(EntityDimensions.fixed(0.5F, 0.5F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -459,7 +461,7 @@ public class ExampleModFabric implements ModInitializer {
 
 
     }
-    public static BlockHitResult getPlayerPOVHitResult(Level p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
+    public static BlockHitResult getPlayerPOVHitResult(World p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
         float f = p_41437_.getXRot();
         float f1 = p_41437_.getYRot();
         Vec3 vec3 = p_41437_.getEyePosition();
@@ -473,7 +475,7 @@ public class ExampleModFabric implements ModInitializer {
         Vec3 vec31 = vec3.add((double)f6 * d0, (double)f5 * d0, (double)f7 * d0);
         return p_41436_.clip(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, p_41438_, p_41437_));
     }
-    public static Vec3 getPlayerPOVHitResultplus(Level p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
+    public static Vec3 getPlayerPOVHitResultplus(World p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
         float f = 0;
         float f1 = p_41437_.getYRot()+30;
         Vec3 vec3 = p_41437_.getEyePosition();
@@ -495,7 +497,7 @@ public class ExampleModFabric implements ModInitializer {
 
         return vec31;
     }
-    public static Vec3 getPlayerPOVHitResultminus(Level p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
+    public static Vec3 getPlayerPOVHitResultminus(World p_41436_, Player p_41437_, ClipContext.Fluid p_41438_) {
         float f = 0;
         float f1 = p_41437_.getYRot()-30;
         Vec3 vec3 = p_41437_.getEyePosition();

@@ -1,6 +1,6 @@
 package net.spellbladenext.mixin;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.function.Predicate;
 
-@Mixin(ServerLevel.class)
+@Mixin(ServerWorld.class)
 public class cleansingfiremixin {
     @Inject(at = @At("HEAD"), method = "addFreshEntity", cancellable = true)
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
@@ -45,7 +45,7 @@ public class cleansingfiremixin {
                 int iii = 0;
                 for (Entity living2 : entities) {
 
-                    CleansingFlameEntity flux = new CleansingFlameEntity(SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE, spellProjectile.getLevel());
+                    CleansingFlameEntity flux = new CleansingFlameEntity(SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE, spellProjectile.getWorld());
                     flux.target = living2;
                     flux.setOwner(player);
                     flux.setPos(player.getBoundingBox().getCenter().add(new Vec3((living2.getX() - player.getX()) * player.getBoundingBox().getXsize() / (living2.distanceTo(player)), (living2.getY() - player.getY()) * player.getBoundingBox().getYsize() / (living2.distanceTo(player)), (living2.getZ() - player.getZ()) * player.getBoundingBox().getZsize() / (living2.distanceTo(player)))));
@@ -53,7 +53,7 @@ public class cleansingfiremixin {
                     flux.power = power;
                     flux.spell = spellProjectile.getSpell();
                     flux.context = spellProjectile.getImpactContext().channeled(1);
-                    if (!spellProjectile.getLevel().isClientSide() && living2 instanceof LivingEntity living3 && FriendshipBracelet.PlayerFriendshipPredicate(player,living3)) {
+                    if (!spellProjectile.getWorld().isClientSide() && living2 instanceof LivingEntity living3 && FriendshipBracelet.PlayerFriendshipPredicate(player,living3)) {
                         living2.level.addFreshEntity(flux);
                     }
                     if(living2 instanceof LivingEntity living3 && TargetHelper.actionAllowed(TargetHelper.TargetingMode.DIRECT, TargetHelper.Intent.HARMFUL,player,living3) && FriendshipBracelet.PlayerFriendshipPredicate(player,living3)){

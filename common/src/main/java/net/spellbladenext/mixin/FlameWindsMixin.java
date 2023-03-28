@@ -1,6 +1,6 @@
 package net.spellbladenext.mixin;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -8,20 +8,20 @@ import net.spell_engine.entity.SpellProjectile;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.FlameWindsEntity;
+import net.spellbladenext.entities.FlameWindsSpellProjectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerLevel.class)
+@Mixin(ServerWorld.class)
 public class FlameWindsMixin {
     @Inject(at = @At("HEAD"), method = "addFreshEntity", cancellable = true)
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
-        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof FlameWindsEntity)){
+        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof FlameWindsSpellProjectile)){
 
             if(spellProjectile.getItem().getItem().equals(Items.MAGMA_CREAM) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
-                    FlameWindsEntity amethyst = new FlameWindsEntity(SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE, entity.getLevel(), player);
+                    FlameWindsSpellProjectile amethyst = new FlameWindsSpellProjectile(SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE, entity.getWorld(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize()));
                     amethyst.setDeltaMovement(player.getViewVector(1).multiply(1, 1, 1));
                     amethyst.setOwner(player);
@@ -32,7 +32,7 @@ public class FlameWindsMixin {
 
                     SpellPower.Result power = SpellPower.getSpellPower(MagicSchool.FIRE, (LivingEntity) spellProjectile.getOwner());
                     amethyst.power = power;
-                    entity.getLevel().addFreshEntity(amethyst);
+                    entity.getWorld().addFreshEntity(amethyst);
 
                 info.cancel();
             }

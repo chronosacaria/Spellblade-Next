@@ -28,13 +28,13 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
-import net.spellbladenext.entities.Reaver;
+import net.spellbladenext.entities.ReaverEntity;
 import net.spellbladenext.items.spellbladeitems.SpellbladeItem;
 
 import java.util.ArrayList;
@@ -143,16 +143,16 @@ public class NetherPortal extends FallingBlockEntity {
     public void tick() {
 
         if(this.ishome && this.spawn){
-            List<Reaver> piglins = this.getWorld().getEntitiesByClass(Reaver.class,this.getBoundingBox().expand(48), piglin -> piglin.returningHome);
-            for(Reaver piglin : piglins){
+            List<ReaverEntity> piglins = this.getWorld().getEntitiesByClass(ReaverEntity.class,this.getBoundingBox().expand(48), piglin -> piglin.returningHome);
+            for(ReaverEntity piglin : piglins){
                 piglin.getBrain().setMemory(MemoryModuleType.WALK_TARGET,new WalkTarget(this,1.4F,1));
                 if(piglin.distanceTo(this) < 3){
                     piglin.discard();
                 }
             }
         }
-        List<Reaver> piglins = this.getWorld().getEntitiesByClass(Reaver.class,this.getBoundingBox().expand(3),piglin -> piglin.returningHome);
-        for(Reaver piglin : piglins){
+        List<ReaverEntity> piglins = this.getWorld().getEntitiesByClass(ReaverEntity.class,this.getBoundingBox().expand(3), piglin -> piglin.returningHome);
+        for(ReaverEntity piglin : piglins){
                 piglin.discard();
         }
         this.setNoGravity(true);
@@ -168,7 +168,7 @@ public class NetherPortal extends FallingBlockEntity {
                 }
             }
             ItemStack spellblade = spellblades.get(this.random.nextInt(spellblades.size()));
-            Reaver piglin = new Reaver(ExampleModFabric.REAVER,this.getWorld());
+            ReaverEntity piglin = new ReaverEntity(ExampleModFabric.REAVER,this.getWorld());
             piglin.tryEquip(spellblade);
             piglin.setPos(this.position());
             if(firstPiglin){
@@ -190,7 +190,7 @@ public class NetherPortal extends FallingBlockEntity {
                 piglin.getBrain().setMemoryWithExpiry(MemoryModuleType.WALK_TARGET,new WalkTarget(this.owner,1.5F,5),160);
 
             }
-            this.getLevel().addFreshEntity(piglin);
+            this.getWorld().addFreshEntity(piglin);
             firstPiglin = false;
         }
         if(tickCount > 220 && !this.ishome){
@@ -200,7 +200,7 @@ public class NetherPortal extends FallingBlockEntity {
         if(tickCount > 240 && !this.ishome){
             this.discard();
         }
-        if(this.ishome && this.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat().ignoreLineOfSight(),null,this.origin.getX(),this.origin.getY(),this.origin.getZ(),this.getBoundingBox().inflate(32)) == null){
+        if(this.ishome && this.getWorld().getNearestEntity(ReaverEntity.class, TargetingConditions.forNonCombat().ignoreLineOfSight(),null,this.origin.getX(),this.origin.getY(),this.origin.getZ(),this.getBoundingBox().inflate(32)) == null){
             goinghome = true;
             this.setPos(this.position().add(0,-6F/20F,0));
 

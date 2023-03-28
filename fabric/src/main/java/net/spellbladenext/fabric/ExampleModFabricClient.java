@@ -4,11 +4,12 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.spell_engine.api.spell.Spell;
@@ -17,10 +18,9 @@ import net.spell_engine.internals.SpellRegistry;
 import net.spell_power.api.attributes.SpellAttributes;
 import net.spellbladenext.ClientMod;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.renderers.CivilizedPiglinRenderer;
-import net.spellbladenext.entities.renderers.ColdRenderer;
-import net.spellbladenext.entities.models.AmethystModel;
-import net.spellbladenext.entities.models.IcicleModel;
+import net.spellbladenext.client.entities.renderers.*;
+import net.spellbladenext.client.entities.models.AmethystEntityModel;
+import net.spellbladenext.client.entities.models.IcicleEntityModel;
 import net.spellbladenext.entities.renderers.*;
 import net.spellbladenext.items.Orbs;
 import net.spellbladenext.items.armoritems.Armors;
@@ -41,7 +41,7 @@ public class ExampleModFabricClient implements ClientModInitializer {
         ClientMod.initialize();
         ClientTickEvents.START_CLIENT_TICK.register(server -> {
             PlayerEntity playerEntity = server.player;
-            Level level = server.level;
+            World level = server.level;
             if (player != null && level != null && !player.isShiftKeyDown()) {
                 double speed = player.getAttributeValue(Attributes.MOVEMENT_SPEED) * player.getAttributeValue(SpellAttributes.HASTE.attribute)*0.01 * 4;
                 BlockHitResult result = level.clip(new ClipContext(player.position(), player.position().add(0, -2, 0), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player));
@@ -130,33 +130,33 @@ public class ExampleModFabricClient implements ClientModInitializer {
             ResourceManagerHelper.registerBuiltinResourcePack(new ResourceLocation(SpellbladeNext.MOD_ID, "alternateswords"), modContainer, ResourcePackActivationType.NORMAL);
             //System.out.println("Registering Classic style resourcepack for Simply Swords");
         });*/
-        EntityRendererRegistry.register(SpellbladeNext.AMETHYST, AmethystRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.AMETHYST2, AmethystRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.AMETHYST, AmethystEntityRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.AMETHYST_SPELL_PROJECTILE_ENTITY, AmethystEntityRenderer::new);
         //EntityRendererRegistry.register(SpellbladeNext.AMETHYST2, AmethystRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE, IcicleRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.ICE_THORN_ENTITY_TYPE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE, IcicleEntityRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ICE_THORN_ENTITY_TYPE, FlyingItemEntityRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_ENTITY_TYPE, ThrownItemRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_TYPE, ThrownItemRenderer::new);
-        EntityRendererRegistry.register(ExampleModFabric.REAVER, CivilizedPiglinRenderer::new);
-        EntityRendererRegistry.register(ExampleModFabric.MAGUS, MagusRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_ENTITY_TYPE, FlyingItemEntityRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_TYPE, FlyingItemEntityRenderer::new);
+        EntityRendererRegistry.register(ExampleModFabric.REAVER, ReaverEntityRenderer::new);
+        EntityRendererRegistry.register(ExampleModFabric.MAGUS, MagusEntityRenderer::new);
 
-        EntityRendererRegistry.register(ExampleModFabric.SPIN, SpinRenderer::new);
-        EntityRendererRegistry.register(ExampleModFabric.COLDATTACK, ColdRenderer::new);
+        EntityRendererRegistry.register(ExampleModFabric.SPIN, SpinAttackEntityRenderer::new);
+        EntityRendererRegistry.register(ExampleModFabric.COLDATTACK, ColdAttackEntityRenderer::new);
 
         EntityRendererRegistry.register(ExampleModFabric.NETHERPORTAL, FallingBlockRenderer::new);
         EntityRendererRegistry.register(ExampleModFabric.NETHER_PORTAL_FRAME, FallingBlockRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE, (asdf) -> new ThrownItemRenderer<>(asdf,2.0F,true));
-        EntityModelLayerRegistry.registerModelLayer(AmethystModel.LAYER_LOCATION, AmethystModel::createBodyLayer);
-        EntityModelLayerRegistry.registerModelLayer(IcicleModel.LAYER_LOCATION, IcicleModel::createBodyLayer);
+        EntityRendererRegistry.register(SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE, (asdf) -> new FlyingItemEntityRenderer<>(asdf,2.0F,true));
+        EntityModelLayerRegistry.registerModelLayer(AmethystEntityModel.LAYER_LOCATION, AmethystEntityModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(IcicleEntityModel.LAYER_LOCATION, IcicleEntityModel::createBodyLayer);
 
-        EntityRendererRegistry.register(SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE, (asdf) -> new ThrownRenderer<>(asdf,2.0F,true));
-        EntityRendererRegistry.register(SpellbladeNext.ERUPTION_ENTITY_TYPE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE, (asdf) -> new FlyingItemEntityRenderer<>(asdf,2.0F,true));
+        EntityRendererRegistry.register(SpellbladeNext.ERUPTION_ENTITY_TYPE, FlyingItemEntityRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE, ThrownItemRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE, (asdf) -> new ThrownItemRenderer<>(asdf,3.0F,true));
+        EntityRendererRegistry.register(SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE, FlyingItemEntityRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE, (asdf) -> new FlyingItemEntityRenderer<>(asdf,3.0F,true));
 
 
     }

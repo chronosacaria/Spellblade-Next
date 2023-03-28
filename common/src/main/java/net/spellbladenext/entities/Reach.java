@@ -1,7 +1,7 @@
 package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
@@ -29,7 +29,7 @@ public class Reach extends Behavior<Mob> {
         this.speedModifier = function;
     }
 
-    protected void start(ServerLevel serverLevel, Mob mob, long l) {
+    protected void start(ServerWorld serverWorld, Mob mob, long l) {
         LivingEntity livingEntity = (LivingEntity)mob.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
         if (BehaviorUtils.canSee(mob, livingEntity) && mob.distanceTo(livingEntity) < 32) {
             this.clearWalkTarget(mob);

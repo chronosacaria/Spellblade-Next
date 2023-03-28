@@ -1,112 +1,104 @@
 package net.spellbladenext.effects;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.WalkTarget;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.item.ItemStack;
-import net.spellbladenext.entities.Reaver;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.TargetPredicate;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.ai.brain.WalkTarget;
+import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
+import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.spellbladenext.entities.ReaverEntity;
+import net.spellbladenext.events.AttackEvent;
 import net.spellbladenext.interfaces.IPiglinSummon;
 
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-import static net.spellbladenext.fabric.ExampleModFabric.*;
-
-public class Hex extends MobEffect {
-    protected Hex(MobEffectCategory mobEffectCategory, int i) {
-        super(mobEffectCategory, i);
+public class Hex extends StatusEffect {
+    protected Hex(StatusEffectCategory statusEffectCategory, int i) {
+        super(statusEffectCategory, i);
     }
 
     @Override
-    public void applyEffectTick(LivingEntity livingEntity, int i) {
-        if(livingEntity instanceof PlayerEntity playerEntity && player.getLevel() instanceof ServerLevel level){
-
-            Reaver reaver1 = player.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),player,player.getX(),player.getY(),player.getZ(),player.getBoundingBox().inflate(50,50,50));
-            Reaver reaver = new Reaver(ExampleModFabric.REAVER, player.getLevel());
-            reaver.isScout = true;
-            reaver.nemesis = player;
-            BlockPos pos = IPiglinSummon.getSafePositionAroundPlayer(player.getLevel(), player.getOnPos(), 50);
+    public void applyUpdateEffect(LivingEntity entity, int amplifier) {
+        if(entity instanceof PlayerEntity playerEntity && playerEntity.getWorld() instanceof ServerWorld serverWorld){
+            ReaverEntity reaverEntity1 = playerEntity.getWorld().getClosestEntity(ReaverEntity.class, TargetPredicate.createNonAttackable(), playerEntity, playerEntity.getX(), playerEntity.getY(), playerEntity.getZ(), playerEntity.getBoundingBox().expand(50,50,50));
+            ReaverEntity reaverEntity = new ReaverEntity(ExampleModFabric.REAVER, playerEntity.getWorld());
+            reaverEntity.isScout = true;
+            reaverEntity.nemesis = playerEntity;
+            BlockPos pos = IPiglinSummon.getSafePositionAroundPlayer(playerEntity.getWorld(), playerEntity.getLandingPos(), 50);
 
             if (pos != null) {
-                boolean bool = StreamSupport.stream(level.getAllEntities().spliterator(),true).toList().stream().noneMatch(asdf -> asdf instanceof Reaver reaver2 && reaver2.isScout() && reaver2.nemesis == player);
+                boolean bool = StreamSupport.stream(serverWorld.iterateEntities().spliterator(),true).toList().stream().noneMatch(asdf -> asdf instanceof ReaverEntity reaver2 && reaver2.isScout() && reaver2.nemesis == playerEntity);
                 if(bool) {
-                    reaver.setPos(pos.getX(), pos.getY(), pos.getZ());
-                    reaver.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(player.position(), 2, 2));
-                    player.getLevel().addFreshEntity(reaver);
+                    reaverEntity.setPos(pos.getX(), pos.getY(), pos.getZ());
+                    reaverEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(playerEntity.getPos(), 2, 2));
+                    playerEntity.getWorld().spawnEntity(reaverEntity);
                 }
 
             }
-            if(reaver1 != null && reaver1.isScout() &&  reaver.nemesis == player && !reaver1.returningHome && !player.hasEffect(MobEffects.INVISIBILITY)){
-                reaver1.getBrain().setMemory(MemoryModuleType.WALK_TARGET,new WalkTarget(player,1.4F,1));
+            if(reaverEntity1 != null && reaverEntity1.isScout() &&  reaverEntity.nemesis == playerEntity && !reaverEntity1.returningHome && !playerEntity.hasStatusEffect(StatusEffects.INVISIBILITY)){
+                reaverEntity1.getBrain().remember(MemoryModuleType.WALK_TARGET,new WalkTarget(playerEntity, 1.4F, 1));
             }
 
         }
-        super.applyEffectTick(livingEntity, i);
+        super.applyUpdateEffect(entity, amplifier);
     }
 
     @Override
-    public boolean isDurationEffectTick(int i, int j) {
+    public boolean canApplyUpdateEffect(int i, int j) {
         return true;
     }
 
 
     @Override
-    public void removeAttributeModifiers(LivingEntity livingEntity, AttributeMap attributeMap, int i) {
+    public void onRemoved(LivingEntity livingEntity, AttributeContainer attributeContainer, int i) {
+        super.onRemoved(livingEntity, attributeContainer, i);
 
-        super.removeAttributeModifiers(livingEntity, attributeMap, i);
-
-        if(livingEntity instanceof PlayerEntity playerEntity && !player.getLevel().isClientSide()){
-            Optional<BlockPos> pos = BlockPos.findClosestMatch(player.blockPosition(),64,128,
-                    asdf -> player.getLevel().getBlockState(asdf).getBlock().equals(ExampleModFabric.HEXBLADE));
+        if(livingEntity instanceof PlayerEntity playerEntity && !playerEntity.getWorld().isClient()){
+            Optional<BlockPos> pos = BlockPos.findClosest(playerEntity.getBlockPos(),64,128,
+                    asdf -> playerEntity.getWorld().getBlockState(asdf).getBlock().equals(ExampleModFabric.HEXBLADE));
             if(pos.isPresent()){
-                player.sendSystemMessage(Component.translatable("Your triumph is respected."));
+                playerEntity.sendMessage(Text.translatable("Your triumph is respected."));
                 return;
             }
-            if(!player.getInventory().hasAnyMatching(itemStack -> itemStack.is(ExampleModFabric.OFFERING.get()))){
-                ExampleModFabric.attackeventArrayList.add(new attackevent(player.getLevel(),player));
-            }
-            else{
-                player.sendSystemMessage(Component.translatable("Your patronage has saved you. For now."));
+            if(!playerEntity.getInventory().containsAny(itemStack -> itemStack.isOf(ExampleModFabric.OFFERING.get()))){
+                ExampleModFabric.attackeventArrayList.add(new AttackEvent(playerEntity.getWorld(), playerEntity));
+            } else{
+                playerEntity.sendMessage(Text.translatable("Your patronage has saved you. For now."));
 
-                if(player instanceof ServerPlayerEntity playerEntity1) {
-                    player1.getStats().setValue(player1, Stats.CUSTOM.get(ExampleModFabric.SINCELASTHEX), 0);
+                if(playerEntity instanceof ServerPlayerEntity serverPlayerEntity) {
+                    serverPlayerEntity.getStatHandler().setStat(serverPlayerEntity, Stats.CUSTOM.getOrCreateStat(ExampleModFabric.SINCELASTHEX), 0);
                 }
-                if(player.getItemInHand(InteractionHand.MAIN_HAND).is(ExampleModFabric.OFFERING.get())) {
-                    ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
-                    stack.shrink(1);
+                if(playerEntity.getStackInHand(Hand.MAIN_HAND).isOf(ExampleModFabric.OFFERING.get())) {
+                    ItemStack stack = playerEntity.getStackInHand(Hand.MAIN_HAND);
+                    stack.decrement(1);
                     if (stack.isEmpty()) {
-                        player.getInventory().removeItem(stack);
-
+                        playerEntity.getInventory().removeOne(stack);
                     }
-                }
-                else if(player.getItemInHand(InteractionHand.OFF_HAND).is(ExampleModFabric.OFFERING.get())) {
-                    ItemStack stack = player.getItemInHand(InteractionHand.OFF_HAND);
-                    stack.shrink(1);
-
-
-                }
-                else {
-                    for (int ii = 0; ii < player.getInventory().getContainerSize(); ++ii) {
-                        ItemStack stack = player.getInventory().getItem(ii);
-                        if (stack.is(ExampleModFabric.OFFERING.get())) {
-                            stack.shrink(1);
+                } else if(playerEntity.getStackInHand(Hand.OFF_HAND).isOf(ExampleModFabric.OFFERING.get())) {
+                    ItemStack stack = playerEntity.getStackInHand(Hand.OFF_HAND);
+                    stack.decrement(1);
+                } else {
+                    for (int ii = 0; ii < playerEntity.getInventory().size(); ++ii) {
+                        ItemStack stack = playerEntity.getInventory().getStack(ii);
+                        if (stack.isOf(ExampleModFabric.OFFERING.get())) {
+                            stack.decrement(1);
                             if (stack.isEmpty()) {
-                                player.getInventory().removeItem(stack);
+                                playerEntity.getInventory().removeOne(stack);
                             }
                             break;
                         }
                     }
-
                 }
             }
         }

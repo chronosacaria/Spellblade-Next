@@ -104,7 +104,7 @@ public class Orbs {
     public static class Material implements Tier {
         public static Material matching(Tier vanillaMaterial, Item repairIngredient) {
             var material = new Material();
-            material.miningLevel = vanillaMaterial.getLevel();
+            material.miningWorld = vanillaMaterial.getWorld();
             material.durability = vanillaMaterial.getUses();
             material.miningSpeed = vanillaMaterial.getSpeed();
             material.enchantability = vanillaMaterial.getEnchantmentValue();
@@ -112,7 +112,7 @@ public class Orbs {
             return material;
         }
 
-        private int miningLevel = 0;
+        private int miningWorld = 0;
         private int durability = 0;
         private float miningSpeed = 0;
         private int enchantability = 0;
@@ -134,8 +134,8 @@ public class Orbs {
         }
 
         @Override
-        public int getLevel() {
-            return miningLevel;
+        public int getWorld() {
+            return miningWorld;
         }
 
         @Override

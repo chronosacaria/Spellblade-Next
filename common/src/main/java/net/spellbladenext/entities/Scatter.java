@@ -1,7 +1,7 @@
 package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -20,15 +20,15 @@ public class Scatter<E extends Mob> extends Behavior<E> {
         this.strafeSpeed = f;
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, E mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, E mob) {
         return this.isTargetTooClose(mob);
     }
 
-    protected void start(ServerLevel serverLevel, E mob, long l) {
-        Reaver target = mob.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),mob,mob.getX()+mob.getViewVector(1).x()*(tooCloseDistance+mob.getBoundingBox().getXsize()),mob.getY()+mob.getViewVector(1).y()*(tooCloseDistance+mob.getBoundingBox().getYsize()),mob.getZ() + +mob.getViewVector(1).z()*(tooCloseDistance+mob.getBoundingBox().getZsize()),mob.getBoundingBox().inflate(tooCloseDistance));
+    protected void start(ServerWorld serverWorld, E mob, long l) {
+        ReaverEntity target = mob.getWorld().getNearestEntity(ReaverEntity.class, TargetingConditions.forNonCombat(),mob,mob.getX()+mob.getViewVector(1).x()*(tooCloseDistance+mob.getBoundingBox().getXsize()),mob.getY()+mob.getViewVector(1).y()*(tooCloseDistance+mob.getBoundingBox().getYsize()),mob.getZ() + +mob.getViewVector(1).z()*(tooCloseDistance+mob.getBoundingBox().getZsize()),mob.getBoundingBox().inflate(tooCloseDistance));
         if(target != null) {
             //System.out.println("backing up!");
-            //Reaver target = mob.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),mob,mob.getX(),mob.getY(),mob.getZ(),mob.getBoundingBox().inflate(tooCloseDistance));
+            //Reaver target = mob.getWorld().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),mob,mob.getX(),mob.getY(),mob.getZ(),mob.getBoundingBox().inflate(tooCloseDistance));
             mob.lookAt(mob,180,180);
             mob.getMoveControl().strafe(-this.strafeSpeed, 0.0F);
         }
@@ -40,7 +40,7 @@ public class Scatter<E extends Mob> extends Behavior<E> {
     }
 
     private boolean isTargetTooClose(E mob) {
-        return mob.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),mob,mob.getX()+mob.getViewVector(1).x()*(tooCloseDistance+mob.getBoundingBox().getXsize()),mob.getY()+mob.getViewVector(1).y()*(tooCloseDistance+mob.getBoundingBox().getYsize()),mob.getZ() + +mob.getViewVector(1).z()*(tooCloseDistance+mob.getBoundingBox().getZsize()),mob.getBoundingBox().inflate(tooCloseDistance)) != null;
+        return mob.getWorld().getNearestEntity(ReaverEntity.class, TargetingConditions.forNonCombat(),mob,mob.getX()+mob.getViewVector(1).x()*(tooCloseDistance+mob.getBoundingBox().getXsize()),mob.getY()+mob.getViewVector(1).y()*(tooCloseDistance+mob.getBoundingBox().getYsize()),mob.getZ() + +mob.getViewVector(1).z()*(tooCloseDistance+mob.getBoundingBox().getZsize()),mob.getBoundingBox().inflate(tooCloseDistance)) != null;
     }
 
     private LivingEntity getTarget(E mob) {

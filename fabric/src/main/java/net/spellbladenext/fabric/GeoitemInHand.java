@@ -12,12 +12,12 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.spellbladenext.entities.Reaver;
+import net.spellbladenext.entities.ReaverEntity;
 import software.bernie.geckolib3.renderers.geo.GeoLayerRenderer;
 import software.bernie.geckolib3.renderers.geo.IGeoRenderer;
 
 @Environment(EnvType.CLIENT)
-public class GeoitemInHand<T extends Reaver, M extends EntityModel<T> & ArmedModel> extends GeoLayerRenderer<T> {
+public class GeoitemInHand<T extends ReaverEntity, M extends EntityModel<T> & ArmedModel> extends GeoLayerRenderer<T> {
     private final ItemInHandRenderer itemInHandRenderer;
 
     public GeoitemInHand(IGeoRenderer<T> entityRendererIn, ItemInHandRenderer item) {

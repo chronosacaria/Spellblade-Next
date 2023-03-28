@@ -12,7 +12,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.internals.SpellRegistry;
@@ -62,7 +62,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
-public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatable {
+public class MagusEntity extends PathAwareEntity implements InventoryOwner, IAnimatable {
     public Player nemesis;
     public boolean isthinking = false;
     public boolean isScout = false;
@@ -98,7 +98,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
     public static final RawAnimation IDLE = new RawAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
     public static final RawAnimation IDLE1 = new RawAnimation("idle", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
     protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.UNIVERSAL_ANGER, MemoryModuleType.AVOID_TARGET, MemoryModuleType.ADMIRING_ITEM, MemoryModuleType.TIME_TRYING_TO_REACH_ADMIRE_ITEM, MemoryModuleType.ADMIRING_DISABLED, MemoryModuleType.DISABLE_WALK_TO_ADMIRE_ITEM, MemoryModuleType.CELEBRATE_LOCATION, MemoryModuleType.DANCING, MemoryModuleType.HUNTED_RECENTLY, MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, MemoryModuleType.RIDE_TARGET, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, MemoryModuleType.ATE_RECENTLY);
-    protected static final ImmutableList<SensorType<? extends Sensor<? super Magus>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY);
+    protected static final ImmutableList<SensorType<? extends Sensor<? super MagusEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY);
     private boolean rising;
     private int risingtime = 0;
     private boolean dashing = false;
@@ -111,13 +111,13 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
     public static final EntityDataAccessor<Boolean> JUMPING;
 
     static {
-        TIER = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.INT);
-        modifier = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.INT);
+        TIER = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.INT);
+        modifier = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.INT);
 
-        FLOATING = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.BOOLEAN);
-        RAISING = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.BOOLEAN);
-        FLYING = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.BOOLEAN);
-        JUMPING = SynchedEntityData.defineId(Magus.class, EntityDataSerializers.BOOLEAN);
+        FLOATING = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.BOOLEAN);
+        RAISING = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.BOOLEAN);
+        FLYING = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.BOOLEAN);
+        JUMPING = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.BOOLEAN);
 
     }
     @Override
@@ -201,7 +201,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
     }
 
     int thinktime = 0;
-    public Magus(EntityType<? extends Magus> p_34652_, Level p_34653_) {
+    public MagusEntity(EntityType<? extends MagusEntity> p_34652_, World p_34653_) {
         super(p_34652_, p_34653_);
     }
 
@@ -225,7 +225,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
 
     @Override
     public boolean hurt(DamageSource damageSource, float f) {
-        if(damageSource.getEntity() instanceof LivingEntity living && EnchantmentHelper.getEnchantmentLevel(Enchantments.SMITE, living) > 0) {
+        if(damageSource.getEntity() instanceof LivingEntity living && EnchantmentHelper.getEnchantmentWorld(Enchantments.SMITE, living) > 0) {
             this.entityData.set(modifier, this.entityData.get(modifier)+1);
         }
         double damagemodifier = Math.min(1,0.05+(double)this.entityData.get(modifier)/100);
@@ -264,8 +264,8 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
         if(this.isOnGround()){
             this.getEntityData().set(JUMPING,false);
         }
-        if (this.tickCount % 5 == 0 && this.getLevel() instanceof ServerLevel level) {
-            List<Entity> magi =  StreamSupport.stream(level.getAllEntities().spliterator(),true).filter(entity -> entity instanceof Magus).toList();
+        if (this.tickCount % 5 == 0 && this.getWorld() instanceof ServerWorld level) {
+            List<Entity> magi =  StreamSupport.stream(level.getAllEntities().spliterator(),true).filter(entity -> entity instanceof MagusEntity).toList();
             if(magi.size() > 1 && magi.stream().anyMatch(asdf -> asdf != this && this.tickCount <= asdf.tickCount)){
                 if(this.spawnedfromitem) {
                     ItemEntity entity = new ItemEntity(level, this.getBoundingBox().getCenter().x, this.getBoundingBox().getCenter().y, this.getBoundingBox().getCenter().z, new ItemStack(ExampleModFabric.PRISMATICEFFIGY.get()));
@@ -295,8 +295,8 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
                 if (this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
                     Vec3 vec3 = this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get().position().add(new Vec3(1 - 2 * random.nextFloat(), 0, 1 - 2 * random.nextFloat()).normalize());
                     this.teleportTo(vec3.x, vec3.y, vec3.z);
-                } else if (this.getLevel().getNearestPlayer(this, 32) != null) {
-                    Vec3 vec3 = this.getLevel().getNearestPlayer(this, 32).position().add(new Vec3(1 - 2 * random.nextFloat(), 0, 1 - 2 * random.nextFloat()).normalize());
+                } else if (this.getWorld().getNearestPlayer(this, 32) != null) {
+                    Vec3 vec3 = this.getWorld().getNearestPlayer(this, 32).position().add(new Vec3(1 - 2 * random.nextFloat(), 0, 1 - 2 * random.nextFloat()).normalize());
                     this.teleportTo(vec3.x, vec3.y, vec3.z);
                 }
             }
@@ -340,8 +340,8 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
 
                 this.setDeltaMovement(speed);
 
-            } else if (this.risingtime == 20 && this.getLevel().getNearestPlayer(this, 32) != null) {
-                this.speed = this.getLevel().getNearestPlayer(this, 32).position().subtract(this.position()).normalize();
+            } else if (this.risingtime == 20 && this.getWorld().getNearestPlayer(this, 32) != null) {
+                this.speed = this.getWorld().getNearestPlayer(this, 32).position().subtract(this.position()).normalize();
                 this.getEntityData().set(RAISING,false);
                 this.getEntityData().set(FLOATING,true);
 
@@ -356,7 +356,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
                     ParticleHelper.sendBatches(this, spell.release.particles);
                 }
 
-                List<Entity> entities = this.getLevel().getEntitiesOfClass(Entity.class,this.getBoundingBox().inflate(6,2,6),asdf -> asdf != this);
+                List<Entity> entities = this.getWorld().getEntitiesOfClass(Entity.class,this.getBoundingBox().inflate(6,2,6),asdf -> asdf != this);
                 for(Entity entity : entities){
                     entity.hurt(SpellDamageSource.mob(MagicSchool.FIRE,this),(float)this.getAttributeValue(Attributes.ATTACK_DAMAGE));
                 }
@@ -382,8 +382,8 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
             this.noPhysics = true;
             if (this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
                 this.speed = this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get().getBoundingBox().getCenter().subtract(this.position()).normalize();
-            } else if (this.getLevel().getNearestPlayer(this, 32) != null) {
-                this.speed = this.getLevel().getNearestPlayer(this, 32).getBoundingBox().getCenter().subtract(this.position()).normalize();
+            } else if (this.getWorld().getNearestPlayer(this, 32) != null) {
+                this.speed = this.getWorld().getNearestPlayer(this, 32).getBoundingBox().getCenter().subtract(this.position()).normalize();
 
             }
             this.setDeltaMovement(speed);
@@ -400,11 +400,11 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
 
 
         if (this.swingTime == 12) {
-            SoundHelper.playSoundEvent(this.getLevel(), this, SoundEvents.PLAYER_ATTACK_SWEEP);
+            SoundHelper.playSoundEvent(this.getWorld(), this, SoundEvents.PLAYER_ATTACK_SWEEP);
             Spell.Release.Target.Area area = new Spell.Release.Target.Area();
             area.angle_degrees = 180;
             Predicate<Entity> selectionPredicate = (target) -> {
-                return !(target instanceof Reaver);
+                return !(target instanceof ReaverEntity);
             };
             List<Entity> list = TargetHelper.targetsFromArea(this, this.getBoundingBox().getCenter(), 2.5F, area, selectionPredicate);
             for (Entity entity : list) {
@@ -423,8 +423,8 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
         }
     }
 
-    public Brain<Magus> getBrain() {
-        return (Brain<Magus>) this.brain;
+    public Brain<MagusEntity> getBrain() {
+        return (Brain<MagusEntity>) this.brain;
     }
 
     @Override
@@ -436,7 +436,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
         return MagusAI.makeBrain(this,brainProvider().makeBrain(dynamic));
     }
-    protected Brain.Provider<Magus> brainProvider() {
+    protected Brain.Provider<MagusEntity> brainProvider() {
         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
     }
 
@@ -467,9 +467,9 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
             this.swingTime = -1;
             this.swinging = true;
             this.swingingArm = interactionHand;
-            if (this.level instanceof ServerLevel) {
+            if (this.level instanceof ServerWorld) {
                 ClientboundAnimatePacket clientboundAnimatePacket = new ClientboundAnimatePacket(this, interactionHand == InteractionHand.MAIN_HAND ? 0 : 3);
-                ServerChunkCache serverChunkCache = ((ServerLevel)this.level).getChunkSource();
+                ServerChunkCache serverChunkCache = ((ServerWorld)this.level).getChunkSource();
                 if (bl) {
                     serverChunkCache.broadcastAndSend(this, clientboundAnimatePacket);
                 } else {
@@ -482,7 +482,7 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
     @Override
     protected void customServerAiStep() {
         this.level.getProfiler().push("magusBrain");
-        this.getBrain().tick((ServerLevel)this.level, this);
+        this.getBrain().tick((ServerWorld)this.level, this);
         this.level.getProfiler().pop();
         MagusAI.updateActivity(this);
         super.customServerAiStep();
@@ -561,9 +561,9 @@ public class Magus extends PathAwareEntity implements InventoryOwner, IAnimatabl
 
     @Override
     public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<Magus>(this,"walk",0,this::predicate2));
+        animationData.addAnimationController(new AnimationController<MagusEntity>(this,"walk",0,this::predicate2));
 
-        animationData.addAnimationController(new AnimationController<Magus>(this,"attack",0,this::predicate));
+        animationData.addAnimationController(new AnimationController<MagusEntity>(this,"attack",0,this::predicate));
 
 
     }

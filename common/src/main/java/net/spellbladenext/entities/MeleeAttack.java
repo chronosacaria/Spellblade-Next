@@ -2,7 +2,7 @@ package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ProjectileWeaponItem;
 
-public class MeleeAttack  extends Behavior<Mob> {
+public class MeleeAttack extends Behavior<Mob> {
     private final int cooldownBetweenAttacks;
 
     public MeleeAttack(int i) {
@@ -21,7 +21,7 @@ public class MeleeAttack  extends Behavior<Mob> {
         this.cooldownBetweenAttacks = i;
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, Mob mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, Mob mob) {
         LivingEntity livingEntity = this.getAttackTarget(mob);
         return !( mob.hasCustomName() &&mob.getCustomName().equals(Component.translatable("Caster"))) && BehaviorUtils.canSee(mob, livingEntity) && mob.isWithinMeleeAttackRange(livingEntity);
     }
@@ -33,7 +33,7 @@ public class MeleeAttack  extends Behavior<Mob> {
         });
     }
 
-    protected void start(ServerLevel serverLevel, Mob mob, long l) {
+    protected void start(ServerWorld serverWorld, Mob mob, long l) {
         LivingEntity livingEntity = this.getAttackTarget(mob);
         //BehaviorUtils.lookAtEntity(mob, livingEntity);
         mob.swing(InteractionHand.MAIN_HAND);

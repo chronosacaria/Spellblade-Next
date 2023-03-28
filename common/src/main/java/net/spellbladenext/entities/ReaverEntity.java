@@ -70,7 +70,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
 
-public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatable, Merchant {
+public class ReaverEntity extends PathAwareEntity implements InventoryOwner, IAnimatable, Merchant {
     public PlayerEntity nemesis;
     public boolean isthinking = false;
     public boolean isScout = false;
@@ -82,7 +82,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     private PlayerEntity tradingplayer;
     float damagetakensincelastthink = 0;
 
-    public Reaver(EntityType<? extends Reaver> entityType, World world) {
+    public ReaverEntity(EntityType<? extends ReaverEntity> entityType, World world) {
         super(entityType, world);
     }
     private final SimpleInventory inventory = new SimpleInventory(8);
@@ -101,7 +101,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     public static final RawAnimation IDLE = new RawAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
     public static final RawAnimation IDLE1 = new RawAnimation("idle", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
     protected static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LOOK_TARGET, MemoryModuleType.DOORS_TO_CLOSE, MemoryModuleType.NEAREST_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_ADULT_PIGLINS, MemoryModuleType.NEARBY_ADULT_PIGLINS, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.HURT_BY, MemoryModuleType.HURT_BY_ENTITY, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN, MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.PATH, MemoryModuleType.ANGRY_AT, MemoryModuleType.UNIVERSAL_ANGER, MemoryModuleType.AVOID_TARGET, MemoryModuleType.ADMIRING_ITEM, MemoryModuleType.TIME_TRYING_TO_REACH_ADMIRE_ITEM, MemoryModuleType.ADMIRING_DISABLED, MemoryModuleType.DISABLE_WALK_TO_ADMIRE_ITEM, MemoryModuleType.CELEBRATE_LOCATION, MemoryModuleType.DANCING, MemoryModuleType.HUNTED_RECENTLY, MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN, MemoryModuleType.NEAREST_VISIBLE_NEMESIS, MemoryModuleType.NEAREST_VISIBLE_ZOMBIFIED, MemoryModuleType.RIDE_TARGET, MemoryModuleType.VISIBLE_ADULT_PIGLIN_COUNT, MemoryModuleType.VISIBLE_ADULT_HOGLIN_COUNT, MemoryModuleType.NEAREST_VISIBLE_HUNTABLE_HOGLIN, MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD, MemoryModuleType.NEAREST_PLAYER_HOLDING_WANTED_ITEM, MemoryModuleType.ATE_RECENTLY, MemoryModuleType.NEAREST_REPELLENT);
-    protected static final ImmutableList<SensorType<? extends Sensor<? super Reaver>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_SPECIFIC_SENSOR);
+    protected static final ImmutableList<SensorType<? extends Sensor<? super ReaverEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.HURT_BY, SensorType.PIGLIN_SPECIFIC_SENSOR);
 
     @Override
     public void setEquipmentDropChance(EquipmentSlot equipmentSlot, float f) {
@@ -127,7 +127,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     public boolean canGiveGifts(){
         return this.canGiveGifts;
     }
-    private static Optional<? extends LivingEntity> getPreferredTarget(Reaver piglin) {
+    private static Optional<? extends LivingEntity> getPreferredTarget(ReaverEntity piglin) {
         Brain<?> brain = piglin.getBrain();
             Optional<LivingEntity> optional = LookTargetUtil.getEntity(piglin, MemoryModuleType.ANGRY_AT);
             if (optional.isPresent() && Sensor.testAttackableTargetPredicateIgnoreVisibility(piglin, optional.get())) {
@@ -152,7 +152,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     }
 
     // NOTE: Is this mob intended to be a type of Piglin?
-    static boolean getPreferredTarget(Reaver piglin, LivingEntity livingEntity) {
+    static boolean getPreferredTarget(ReaverEntity piglin, LivingEntity livingEntity) {
         return getPreferredTarget(piglin).filter((livingEntity2) -> livingEntity2 == livingEntity).isPresent();
     }
 
@@ -206,7 +206,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
         super.tick();
 
 
-        if(this instanceof SpinAttack || this instanceof ColdAttack){
+        if(this instanceof SpinAttackEntity || this instanceof ColdAttackEntity){
             return;
         }
         if (this.getBrain().getOptionalMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
@@ -216,14 +216,14 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
         this.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
         this.discard();
         }
-        List<Reaver> piglins = this.getWorld().getEntitiesByClass(Reaver.class, this.getBoundingBox().expand(32), piglin -> !piglin.getBrain().hasActivity(Activity.IDLE) || piglin.age < 1000);
+        List<ReaverEntity> piglins = this.getWorld().getEntitiesByClass(ReaverEntity.class, this.getBoundingBox().expand(32), piglin -> !piglin.getBrain().hasActivity(Activity.IDLE) || piglin.age < 1000);
         if(piglins.isEmpty() && this.age % 10 == 0){
-            List<Reaver> piglins2 = this.getWorld().getEntitiesByClass(Reaver.class,this.getBoundingBox().expand(32), piglin -> true);
-            for(Reaver piglin : piglins2){
+            List<ReaverEntity> piglins2 = this.getWorld().getEntitiesByClass(ReaverEntity.class,this.getBoundingBox().expand(32), piglin -> true);
+            for(ReaverEntity piglin : piglins2){
                 piglin.returningHome = true;
             }
         }
-        List<Reaver> piglins2 = this.getWorld().getEntitiesByClass(Reaver.class,this.getBoundingBox().expand(32), piglin -> piglin.isleader);
+        List<ReaverEntity> piglins2 = this.getWorld().getEntitiesByClass(ReaverEntity.class,this.getBoundingBox().expand(32), piglin -> piglin.isleader);
         if(piglins2.isEmpty()){
             this.isleader = true;
             this.homecount = -200;
@@ -238,7 +238,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
             SoundHelper.playSoundEvent(this.getWorld(),this, SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP);
             Spell.Release.Target.Area area = new Spell.Release.Target.Area();
             area.angle_degrees = 180;
-            Predicate<Entity> selectionPredicate = (target) -> !(target instanceof Reaver);
+            Predicate<Entity> selectionPredicate = (target) -> !(target instanceof ReaverEntity);
             List<Entity> list = TargetHelper.targetsFromArea(this, this.getBoundingBox().getCenter(),2.5F, area,  selectionPredicate);
             for(Entity entity : list){
                 if(entity.damage(SpellDamageSource.mob(getMagicSchool(),this),(float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) / 2)) {
@@ -379,7 +379,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
         return false;
     }
 
-    protected static boolean canHarvest(Reaver piglin){
+    protected static boolean canHarvest(ReaverEntity piglin){
         return piglin.getMainHandStack().getItem() instanceof HoeItem;
     }
 
@@ -394,7 +394,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     protected Brain<?> deserializeBrain(Dynamic<?> dynamic) {
         return ReaverAI.makeBrain(this, brainProvider().deserialize(dynamic));
     }
-    protected Brain.Profile<Reaver> brainProvider() {
+    protected Brain.Profile<ReaverEntity> brainProvider() {
         return Brain.createProfile(MEMORY_TYPES, SENSOR_TYPES);
     }
     @Override
@@ -472,9 +472,9 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
 
     @Override
     public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<Reaver>(this,"walk",0,this::predicate2));
+        animationData.addAnimationController(new AnimationController<ReaverEntity>(this,"walk",0,this::predicate2));
 
-        animationData.addAnimationController(new AnimationController<Reaver>(this,"attack",0,this::predicate));
+        animationData.addAnimationController(new AnimationController<ReaverEntity>(this,"attack",0,this::predicate));
 
 
     }
@@ -553,6 +553,11 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
     }
 
     @Override
+    public boolean isWorldedMerchant() {
+        return false;
+    }
+
+    @Override
     public SoundEvent getYesSound() {
         return null;
     }
@@ -572,7 +577,7 @@ public class Reaver extends PathAwareEntity implements InventoryOwner, IAnimatab
         if (optionalInt.isPresent() && this.getMainHandStack().isEmpty()) {
             TradeOfferList merchantOffers = this.getOffers();
             if (!merchantOffers.isEmpty()) {
-                playerEntity.sendTradeOffers(optionalInt.getAsInt(), merchantOffers, i, this.getExperience(), this.isLeveledMerchant(), this.canRefreshTrades());
+                playerEntity.sendTradeOffers(optionalInt.getAsInt(), merchantOffers, i, this.getExperience(), this.isWorldedMerchant(), this.canRefreshTrades());
             }
         }
 

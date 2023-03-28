@@ -17,11 +17,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.spellbladenext.entities.Reaver;
+import net.spellbladenext.entities.ReaverEntity;
 
 public class NetherPortalFrame extends FallingBlockEntity {
 
@@ -65,7 +65,7 @@ public class NetherPortalFrame extends FallingBlockEntity {
     }
 
 
-    public NetherPortalFrame(EntityType<? extends NetherPortalFrame> p_36833_, Level p_36834_, LivingEntity player, BlockPos blockPos, float damage, boolean bool, boolean home) {
+    public NetherPortalFrame(EntityType<? extends NetherPortalFrame> p_36833_, World p_36834_, LivingEntity player, BlockPos blockPos, float damage, boolean bool, boolean home) {
         super(p_36833_, p_36834_);
 
 
@@ -113,7 +113,7 @@ public class NetherPortalFrame extends FallingBlockEntity {
         }
 
     }
-    public static NetherPortalFrame fall(Level p_201972_, BlockPos p_201973_, LivingEntity player, int size, float damage, boolean home) {
+    public static NetherPortalFrame fall(World p_201972_, BlockPos p_201973_, LivingEntity player, int size, float damage, boolean home) {
         NetherPortalFrame fallingblockentity = new NetherPortalFrame(p_201972_, (double)p_201973_.getX() + 0.5D, (double)p_201973_.getY(), (double)p_201973_.getZ() + 0.5D,player,size, damage);
         fallingblockentity.damage = damage;
         fallingblockentity.ishome = home;
@@ -152,7 +152,7 @@ public class NetherPortalFrame extends FallingBlockEntity {
         if(tickCount > 240 && !this.ishome){
             this.discard();
         }
-        if(this.ishome && this.getLevel().getNearestEntity(Reaver.class, TargetingConditions.forNonCombat(),null,this.origin.getX(),this.origin.getY(),this.origin.getZ(),this.getBoundingBox().inflate(32)) == null){
+        if(this.ishome && this.getWorld().getNearestEntity(ReaverEntity.class, TargetingConditions.forNonCombat(),null,this.origin.getX(),this.origin.getY(),this.origin.getZ(),this.getBoundingBox().inflate(32)) == null){
             goinghome = true;
             this.setPos(this.position().add(0,-6F/20F,0));
 

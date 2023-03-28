@@ -2,7 +2,7 @@ package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,10 +23,10 @@ import net.spellbladenext.SpellbladeNext;
 import java.util.List;
 import java.util.Optional;
 
-import static net.spellbladenext.entities.Magus.JUMPING;
-import static net.spellbladenext.entities.Magus.TIER;
+import static net.spellbladenext.entities.MagusEntity.JUMPING;
+import static net.spellbladenext.entities.MagusEntity.TIER;
 
-public class MagusJumpBack <E extends Magus> extends Behavior<E> {
+public class MagusJumpBack <E extends MagusEntity> extends Behavior<E> {
     private final double tooCloseDistance;
     private final float strafeSpeed;
     float time = 0;
@@ -38,28 +38,28 @@ public class MagusJumpBack <E extends Magus> extends Behavior<E> {
         this.strafeSpeed = f;
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, E mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, E mob) {
         return this.isTargetVisible(mob) && this.isTargetTooClose(mob) && mob.getMaxHealth()/10 < mob.damagetakensincelastthink;
     }
 
-    protected void start(ServerLevel serverLevel, E mob, long l) {
+    protected void start(ServerWorld serverWorld, E mob, long l) {
         //System.out.println("backing up!");
         if(this.getTarget(mob).isPresent()) {
             mob.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.getTarget(mob).get(), true));
         }
-        bool = serverLevel.random.nextBoolean();
+        bool = serverWorld.random.nextBoolean();
 
         //mob.getMoveControl().strafe(-this.strafeSpeed, 0.0F);
         //mob.setYRot(Mth.rotateIfNecessary(mob.getYRot(), mob.yHeadRot, 0.0F));
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel serverLevel, E livingEntity, long l) {
+    protected boolean canStillUse(ServerWorld serverWorld, E livingEntity, long l) {
         return this.time <=40;
     }
 
     @Override
-    protected void stop(ServerLevel serverLevel, E livingEntity, long l) {
+    protected void stop(ServerWorld serverWorld, E livingEntity, long l) {
         this.time = 0;
         if(this.getTarget(livingEntity).isPresent()) {
             Vec3 vec31 = new Vec3(-this.getTarget(livingEntity).get().getX()+livingEntity.getX(),0,-this.getTarget(livingEntity).get().getZ()+livingEntity.getZ());
@@ -75,12 +75,12 @@ public class MagusJumpBack <E extends Magus> extends Behavior<E> {
             livingEntity.getEntityData().set(TIER,livingEntity.getEntityData().get(TIER)+1);
         }
 
-        super.stop(serverLevel, livingEntity, l);
+        super.stop(serverWorld, livingEntity, l);
     }
 
     @Override
-    protected void tick(ServerLevel serverLevel, E livingEntity, long l) {
-        super.tick(serverLevel, livingEntity, l);
+    protected void tick(ServerWorld serverWorld, E livingEntity, long l) {
+        super.tick(serverWorld, livingEntity, l);
         int i = 1;
         if(bool){
             i = -1;
@@ -96,25 +96,25 @@ public class MagusJumpBack <E extends Magus> extends Behavior<E> {
         if(time % 10 == 0) {
             if (livingEntity.getMagicSchool() == MagicSchool.ARCANE) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "arcaneoverdrive"));
-                if (!serverLevel.isClientSide()) {
+                if (!serverWorld.isClientSide()) {
                     ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverLevel,livingEntity,spell.release.sound);
+                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
 
                 }
 
-                List<Entity> entities = serverLevel.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
                 for (Entity entity : entities) {
                     entity.hurt(SpellDamageSource.mob(MagicSchool.ARCANE, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
                 }
             }
             if (livingEntity.getMagicSchool() == MagicSchool.FIRE) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "fireoverdrive"));
-                if (!serverLevel.isClientSide()) {
+                if (!serverWorld.isClientSide()) {
                     ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverLevel,livingEntity,spell.release.sound);
+                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
                 }
 
-                List<Entity> entities = serverLevel.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
                 for (Entity entity : entities) {
                     entity.hurt(SpellDamageSource.mob(MagicSchool.FIRE, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
 
@@ -122,13 +122,13 @@ public class MagusJumpBack <E extends Magus> extends Behavior<E> {
             }
             if (livingEntity.getMagicSchool() == MagicSchool.FROST) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "frostoverdrive"));
-                if (!serverLevel.isClientSide()) {
+                if (!serverWorld.isClientSide()) {
                     ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverLevel,livingEntity,spell.release.sound);
+                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
 
                 }
 
-                List<Entity> entities = serverLevel.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
                 for (Entity entity : entities) {
                     entity.hurt(SpellDamageSource.mob(MagicSchool.FROST, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
                 }

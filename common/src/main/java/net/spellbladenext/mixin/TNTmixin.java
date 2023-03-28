@@ -1,7 +1,7 @@
 package net.spellbladenext.mixin;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -13,20 +13,20 @@ import net.spell_engine.entity.SpellProjectile;
 import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.ExplosionDummy;
+import net.spellbladenext.entities.ExplosionPersistentProjectileEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ServerLevel.class)
+@Mixin(ServerWorld.class)
 public class TNTmixin {
     @Inject(at = @At("HEAD"), method = "addFreshEntity", cancellable = true)
     private void setFlaming(Entity entity, CallbackInfoReturnable<Boolean> info) {
-        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof ExplosionDummy)){
+        if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof ExplosionPersistentProjectileEntity)){
 
             if(spellProjectile.getItem().getItem().equals(Items.TNT) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
-                    ExplosionDummy amethyst = new ExplosionDummy(SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE,spellProjectile.getLevel(),player);
+                    ExplosionPersistentProjectileEntity amethyst = new ExplosionPersistentProjectileEntity(SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE,spellProjectile.getWorld(),player);
                     amethyst.setOwner(player);
                     if(spellProjectile.getFollowedTarget() != null) {
                         amethyst.setPos(spellProjectile.getFollowedTarget().position().add(0, spellProjectile.getFollowedTarget().getBoundingBox().getYsize() / 2, 0));
@@ -47,9 +47,9 @@ public class TNTmixin {
 
                          amethyst.power = SpellPower.getSpellPower(MagicSchool.FIRE, (LivingEntity) spellProjectile.getOwner());
 
-                        entity.getLevel().addFreshEntity(amethyst);
+                        entity.getWorld().addFreshEntity(amethyst);
 
-                if(player.getLevel() instanceof ServerLevel level){
+                if(player.getWorld() instanceof ServerWorld level){
                     //level.playSound(null,player, SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS,3.0F,1);
                     int num_pts_line = 40;
                     for(int ii = 0; ii < 4; ii++) {

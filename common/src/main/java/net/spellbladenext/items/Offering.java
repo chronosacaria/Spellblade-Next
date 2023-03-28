@@ -7,7 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.spellbladenext.fabric.ExampleModFabric;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ public class Offering extends Item{
     }
 
     @Override
-    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
+    public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean bl) {
         if(entity instanceof PlayerEntity playerEntity){
             if(player.hasEffect(ExampleModFabric.HEX.get())){
                 player.removeEffect(ExampleModFabric.HEX.get());
@@ -29,7 +29,7 @@ public class Offering extends Item{
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, PlayerEntity playerEntity, InteractionHand interactionHand) {
+    public InteractionResultHolder<ItemStack> use(World level, PlayerEntity playerEntity, InteractionHand interactionHand) {
         if(player.hasEffect(ExampleModFabric.HEX.get())){
             player.removeEffect(ExampleModFabric.HEX.get());
             return InteractionResultHolder.consume(player.getItemInHand(interactionHand));
@@ -39,7 +39,7 @@ public class Offering extends Item{
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable World level, List<Component> list, TooltipFlag tooltipFlag) {
         list.add(Component.translatable("Use or keep in inventory to ward away Hex."));
 
         super.appendHoverText(itemStack, level, list, tooltipFlag);

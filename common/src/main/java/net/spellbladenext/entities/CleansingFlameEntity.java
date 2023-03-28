@@ -77,8 +77,6 @@ public int life = 0;
         if(!this.getWorld().isClient()) {
             this.discard();
         }
-
-        //super.onHitEntity(entityHitResult);
     }
 
     @Override

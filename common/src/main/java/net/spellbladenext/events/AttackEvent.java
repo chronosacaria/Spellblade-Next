@@ -1,30 +1,31 @@
-package net.spellbladenext.fabric;
+package net.spellbladenext.events;
 
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 import net.spellbladenext.blocks.blockentities.NetherPortalFrame;
 import net.spellbladenext.interfaces.IPiglinSummon;
 
 import java.util.Optional;
 
-public class attackevent implements IPiglinSummon {
+public class AttackEvent implements IPiglinSummon {
     public int tickCount;
     public boolean done = false;
-    Level level;
+    World world;
     PlayerEntity playerEntity;
     boolean firstTick;
 
-    public attackevent(Level world, Player serverPlayer) {
+    public AttackEvent(World world, PlayerEntity playerEntity) {
         this.tickCount = 0;
-        this.level = world;
-        this.player = serverPlayer;
+        this.world = world;
+        this.playerEntity = playerEntity;
         this.firstTick = true;
     }
 
     @Override
     public void tick() {
         if(this.tickCount % 5 == 0){
-            Optional<NetherPortalFrame> frame = IPiglinSummon.summonNetherPortal(this.level,this.player,false);
+            Optional<NetherPortalFrame> frame = IPiglinSummon.summonNetherPortal(this.world,this.playerEntity,false);
             if(frame.isPresent()){
                 this.done = true;
             }

@@ -2,7 +2,7 @@ package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -34,22 +34,22 @@ public class SpellAttack<E extends Mob, T extends LivingEntity> extends Behavior
         this.crossbowState = CrossbowState.UNCHARGED;
     }
 
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, E mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, E mob) {
         LivingEntity livingEntity = getAttackTarget(mob);
-        return  mob instanceof Reaver reaver && reaver.isCaster() && BehaviorUtils.canSee(mob, livingEntity) && mob.distanceTo(livingEntity) < 32;
+        return  mob instanceof ReaverEntity reaverEntity && reaverEntity.isCaster() && BehaviorUtils.canSee(mob, livingEntity) && mob.distanceTo(livingEntity) < 32;
     }
 
-    protected boolean canStillUse(ServerLevel serverLevel, E mob, long l) {
-        return mob.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.checkExtraStartConditions(serverLevel, mob);
+    protected boolean canStillUse(ServerWorld serverWorld, E mob, long l) {
+        return mob.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET) && this.checkExtraStartConditions(serverWorld, mob);
     }
 
-    protected void tick(ServerLevel serverLevel, E mob, long l) {
+    protected void tick(ServerWorld serverWorld, E mob, long l) {
         LivingEntity livingEntity = getAttackTarget(mob);
         //this.lookAtTarget(mob, livingEntity);
         this.crossbowAttack(mob, livingEntity);
     }
 
-    protected void stop(ServerLevel serverLevel, E mob, long l) {
+    protected void stop(ServerWorld serverWorld, E mob, long l) {
         if (mob.isUsingItem()) {
             mob.stopUsingItem();
         }
@@ -59,7 +59,7 @@ public class SpellAttack<E extends Mob, T extends LivingEntity> extends Behavior
 
     private void crossbowAttack(E mob, LivingEntity target) {
         if(attackDelay <= 0) {
-            if(mob instanceof Reaver reaver && reaver.getMagicSchool() == MagicSchool.ARCANE) {
+            if(mob instanceof ReaverEntity reaverEntity && reaverEntity.getMagicSchool() == MagicSchool.ARCANE) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "arcane_missile"));
                 SpellHelper.ImpactContext context = new SpellHelper.ImpactContext(1, 1.0F, (Vec3) null, new SpellPower.Result(MagicSchool.ARCANE, mob.getAttributeValue(Attributes.ATTACK_DAMAGE)*0.8, 0, 1), impactTargetingMode(spell));
                 Vec3 launchPoint = launchPoint(mob);
@@ -68,37 +68,37 @@ public class SpellAttack<E extends Mob, T extends LivingEntity> extends Behavior
                 projectileData.homing_angle = 15;
                 float velocity = projectileData.velocity;
                 float divergence = projectileData.divergence;
-                SoundHelper.playSoundEvent(mob.getLevel(), mob, SoundEvents.ILLUSIONER_CAST_SPELL, 1, 1);
+                SoundHelper.playSoundEvent(mob.getWorld(), mob, SoundEvents.ILLUSIONER_CAST_SPELL, 1, 1);
                 Vec3 look = target.getBoundingBox().getCenter().subtract(launchPoint).normalize();
                 projectile.shoot(0, 1, 0, velocity, divergence);
 
                 projectile.range = spell.range;
                 projectile.getViewXRot(mob.getXRot());
                 projectile.setYRot(mob.getYRot());
-                mob.getLevel().addFreshEntity(projectile);
+                mob.getWorld().addFreshEntity(projectile);
                 attackDelay = 20;
             }
-            if(mob instanceof Reaver reaver && reaver.getMagicSchool() == MagicSchool.FROST) {
+            if(mob instanceof ReaverEntity reaverEntity && reaverEntity.getMagicSchool() == MagicSchool.FROST) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "frostbolt"));
                 SpellHelper.ImpactContext context = new SpellHelper.ImpactContext(1, 1.0F, (Vec3) null, new SpellPower.Result(MagicSchool.FROST, mob.getAttributeValue(Attributes.ATTACK_DAMAGE)*0.6, 0, 1), impactTargetingMode(spell));
                 Vec3 launchPoint = launchPoint(mob);
                 SpellProjectile projectile = new SpellProjectile(mob.level, mob, launchPoint.x(), launchPoint.y(), launchPoint.z(), SpellProjectile.Behaviour.FLY, spell, target, context);
                 Spell.ProjectileData projectileData = spell.release.target.projectile;
-                float additional = 7.5F*reaver.getRandom().nextFloat();
+                float additional = 7.5F* reaverEntity.getRandom().nextFloat();
                 projectileData.homing_angle = 7.5F+additional;
                 float velocity = projectileData.velocity;
                 float divergence = projectileData.divergence;
-                SoundHelper.playSoundEvent(mob.getLevel(), mob, SoundEvents.ILLUSIONER_CAST_SPELL, 1, 1.2F);
+                SoundHelper.playSoundEvent(mob.getWorld(), mob, SoundEvents.ILLUSIONER_CAST_SPELL, 1, 1.2F);
                 Vec3 look = target.getBoundingBox().getCenter().subtract(launchPoint).normalize();
                 projectile.shoot(0, 1, 0, velocity, divergence);
 
                 projectile.range = spell.range;
                 projectile.getViewXRot(mob.getXRot());
                 projectile.setYRot(mob.getYRot());
-                mob.getLevel().addFreshEntity(projectile);
+                mob.getWorld().addFreshEntity(projectile);
                 attackDelay = 10;
             }
-            if(mob instanceof Reaver reaver && reaver.getMagicSchool() == MagicSchool.FIRE) {
+            if(mob instanceof ReaverEntity reaverEntity && reaverEntity.getMagicSchool() == MagicSchool.FIRE) {
                 Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "fireball"));
                 SpellHelper.ImpactContext context = new SpellHelper.ImpactContext(1, 1.0F, (Vec3) null, new SpellPower.Result(MagicSchool.FIRE, mob.getAttributeValue(Attributes.ATTACK_DAMAGE)*1, 0, 1), impactTargetingMode(spell));
                 Vec3 launchPoint = launchPoint(mob);
@@ -107,14 +107,14 @@ public class SpellAttack<E extends Mob, T extends LivingEntity> extends Behavior
                 projectileData.homing_angle = 15;
                 float velocity = projectileData.velocity;
                 float divergence = projectileData.divergence;
-                SoundHelper.playSoundEvent(mob.getLevel(), mob, SoundEvents.BLAZE_SHOOT, 1, 1);
+                SoundHelper.playSoundEvent(mob.getWorld(), mob, SoundEvents.BLAZE_SHOOT, 1, 1);
                 Vec3 look = target.getBoundingBox().getCenter().subtract(launchPoint).normalize();
                 projectile.shoot(0, 1, 0, velocity, divergence);
 
                 projectile.range = spell.range;
                 projectile.getViewXRot(mob.getXRot());
                 projectile.setYRot(mob.getYRot());
-                mob.getLevel().addFreshEntity(projectile);
+                mob.getWorld().addFreshEntity(projectile);
                 attackDelay = 40;
             }
         }

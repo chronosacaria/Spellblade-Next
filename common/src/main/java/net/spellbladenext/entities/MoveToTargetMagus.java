@@ -1,7 +1,7 @@
 package net.spellbladenext.entities;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
@@ -24,9 +24,9 @@ public class MoveToTargetMagus extends MoveToTargetSink {
     @Nullable
     private BlockPos lastTargetPos;
     private float speedModifier;
-    protected boolean checkExtraStartConditions(ServerLevel serverLevel, Mob mob) {
+    protected boolean checkExtraStartConditions(ServerWorld serverWorld, Mob mob) {
 
-        if(mob instanceof Magus magus && magus.isthinking){
+        if(mob instanceof MagusEntity magusEntity && magusEntity.isthinking){
             return false;
         }
         if (this.remainingCooldown > 0) {
@@ -36,7 +36,7 @@ public class MoveToTargetMagus extends MoveToTargetSink {
             Brain<?> brain = mob.getBrain();
             WalkTarget walkTarget = (WalkTarget)brain.getMemory(MemoryModuleType.WALK_TARGET).get();
             boolean bl = this.reachedTarget(mob, walkTarget);
-            if (!bl && this.tryComputePath(mob, walkTarget, serverLevel.getGameTime())) {
+            if (!bl && this.tryComputePath(mob, walkTarget, serverWorld.getGameTime())) {
                 this.lastTargetPos = walkTarget.getTarget().currentBlockPosition();
                 return true;
             } else {
@@ -77,9 +77,9 @@ public class MoveToTargetMagus extends MoveToTargetSink {
 
         return false;
     }
-    protected boolean canStillUse(ServerLevel serverLevel, Mob mob, long l) {
+    protected boolean canStillUse(ServerWorld serverWorld, Mob mob, long l) {
 
-        if(mob instanceof Magus magus && magus.isthinking){
+        if(mob instanceof MagusEntity magusEntity && magusEntity.isthinking){
             return false;
         }
         if (this.path != null && this.lastTargetPos != null) {

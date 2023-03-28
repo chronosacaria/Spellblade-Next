@@ -3,7 +3,7 @@ package net.spellbladenext.entities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerWorld;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
@@ -37,10 +37,10 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, Level level) {
+    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World level) {
         super(entityType, level);
     }
-    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, Level level, PlayerEntity playerEntity) {
+    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World level, PlayerEntity playerEntity) {
         super(entityType, level);
         this.setOwner(player);
     }
@@ -64,7 +64,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
         this.xOld = this.getX();
         this.yOld = this.getY();
         this.zOld = this.getZ();
-        if(this.getOwner() == null && !this.getLevel().isClientSide){
+        if(this.getOwner() == null && !this.getWorld().isClientSide){
             this.discard();
         }
         if(this.changetime > 0) {
@@ -88,7 +88,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
             }
         }
 
-        if (hitresult.getType() == HitResult.Type.BLOCK && !this.getLevel().isClientSide()  && !flag ) {
+        if (hitresult.getType() == HitResult.Type.BLOCK && !this.getWorld().isClientSide()  && !flag ) {
             this.onHit(hitresult);
         }
 
@@ -109,7 +109,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
         } else {
             f = 0.99F;
         }
-        if(!this.getLevel().isClientSide()) {
+        if(!this.getWorld().isClientSide()) {
             this.setDeltaMovement(vec3.scale((double) f));
             if (!this.isNoGravity()) {
                 Vec3 vec31 = this.getDeltaMovement();
@@ -123,7 +123,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
 
     @Override
     protected void onHit(HitResult hitResult) {
-        if(hitResult instanceof BlockHitResult result && !this.getLevel().isClientSide()) {
+        if(hitResult instanceof BlockHitResult result && !this.getWorld().isClientSide()) {
             final int NUM_POINTS = 96;
             final double RADIUS = 4d;
             if (!this.level.isClientSide()) {
@@ -181,8 +181,8 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
                             double x = Math.cos(angle) * RADIUS;
                             double y = Math.sin(angle) * RADIUS;
 
-                            if(!this.getLevel().isClientSide())
-                            ((ServerLevel) this.level).sendParticles(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 1, x, 0.0D, y, 0.2D);
+                            if(!this.getWorld().isClientSide())
+                            ((ServerWorld) this.level).sendParticles(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 1, x, 0.0D, y, 0.2D);
 
                         }
                         Predicate<Entity> selectionPredicate = (target) -> {
@@ -194,7 +194,7 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
                         List<Entity> list = TargetHelper.targetsFromArea(this, result.getLocation().add(0,(double)this.getBbHeight()*0.5,0), 4, area, selectionPredicate);
                         for(Entity living : list){
                             if(this.power != null && this.context != null && this.spell != null ) {
-                                SpellHelper.performImpacts(this.getLevel(),owner,living,this.spell,this.context);
+                                SpellHelper.performImpacts(this.getWorld(),owner,living,this.spell,this.context);
                             }
                         }
                         SoundEvent soundEvent = SoundEvents.BLAZE_SHOOT;

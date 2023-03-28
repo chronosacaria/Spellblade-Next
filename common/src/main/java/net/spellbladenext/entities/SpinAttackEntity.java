@@ -7,7 +7,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.npc.InventoryCarrier;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec3;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
@@ -25,7 +25,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.List;
 
-public class SpinAttack extends Reaver implements InventoryCarrier, IAnimatable {
+public class SpinAttackEntity extends ReaverEntity implements InventoryCarrier, IAnimatable {
     private  LivingEntity caster = null;
     private SimpleContainer inventory;
     public float range;
@@ -39,20 +39,20 @@ public class SpinAttack extends Reaver implements InventoryCarrier, IAnimatable 
     private AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public static final RawAnimation IDLE = new RawAnimation("animation.hexblade.spin", ILoopType.EDefaultLoopTypes.LOOP);
-    public SpinAttack(EntityType<? extends SpinAttack> entityType, Level world) {
+    public SpinAttackEntity(EntityType<? extends SpinAttackEntity> entityType, World world) {
         super(entityType, world);
         this.getBrain().removeAllBehaviors();
         this.range = 128.0F;
     }
 
-    public SpinAttack(Level world, LivingEntity owner) {
+    public SpinAttackEntity(World world, LivingEntity owner) {
         super(ExampleModFabric.SPIN, world);
         this.getBrain().removeAllBehaviors();
         this.range = 128.0F;
         this.caster = owner;
     }
-    public SpinAttack(Level world, LivingEntity caster, double x, double y, double z, SpellProjectile.Behaviour behaviour, Spell spell, Entity target, SpellHelper.ImpactContext context) {
-        this(world, caster);
+    public SpinAttackEntity(World world, LivingEntity caster, double x, double y, double z, SpellProjectile.Behaviour behaviour, Spell spell, Entity target, SpellHelper.ImpactContext context) {
+        this.SpinAttackEntity(world, caster);
         this.setPos(x, y, z);
         this.spell = spell;
         Spell.ProjectileData projectileData = this.projectileData();
@@ -87,14 +87,14 @@ public class SpinAttack extends Reaver implements InventoryCarrier, IAnimatable 
             this.setPos(this.hero.position());
         }
         if(tickCount == 5 && this.hero != null){
-            List<LivingEntity> list = this.getLevel().getNearbyEntities(LivingEntity.class, TargetingConditions.forNonCombat(),this.hero,this.getBoundingBox().inflate(1.5,0,1.5));
-            list.forEach(asdf -> SpellHelper.performImpacts(this.getLevel(),this.hero,asdf,this.spell,this.context));
+            List<LivingEntity> list = this.getWorld().getNearbyEntities(LivingEntity.class, TargetingConditions.forNonCombat(),this.hero,this.getBoundingBox().inflate(1.5,0,1.5));
+            list.forEach(asdf -> SpellHelper.performImpacts(this.getWorld(),this.hero,asdf,this.spell,this.context));
         }
         if(tickCount == 5 && this.hero == null && this.caster != null){
-            List<LivingEntity> list = this.getLevel().getNearbyEntities(LivingEntity.class, TargetingConditions.forNonCombat(),this.caster,this.getBoundingBox().inflate(1.5,0,1.5));
-            list.forEach(asdf -> SpellHelper.performImpacts(this.getLevel(),this.caster,asdf,this.spell,this.context));
+            List<LivingEntity> list = this.getWorld().getNearbyEntities(LivingEntity.class, TargetingConditions.forNonCombat(),this.caster,this.getBoundingBox().inflate(1.5,0,1.5));
+            list.forEach(asdf -> SpellHelper.performImpacts(this.getWorld(),this.caster,asdf,this.spell,this.context));
         }
-        if(tickCount >=15 && !this.getLevel().isClientSide){
+        if(tickCount >=15 && !this.getWorld().isClientSide){
             this.discard();
         }
         this.baseTick();
@@ -126,7 +126,7 @@ public class SpinAttack extends Reaver implements InventoryCarrier, IAnimatable 
 
     @Override
     public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<SpinAttack>(this,"spin",0,this::predicate2));
+        animationData.addAnimationController(new AnimationController<SpinAttackEntity>(this,"spin",0,this::predicate2));
     }
 
     @Override
