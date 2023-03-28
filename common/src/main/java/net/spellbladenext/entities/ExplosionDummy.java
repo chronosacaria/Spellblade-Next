@@ -52,7 +52,7 @@ public class ExplosionDummy extends AbstractArrow implements ItemSupplier {
 
     @Override
     public ItemStack getItem() {
-        return SpellbladeNext.REALEXPLOSION.getDefaultInstance();
+        return SpellbladeNext.REAL_EXPLOSION.getDefaultInstance();
     }
 
     @Override

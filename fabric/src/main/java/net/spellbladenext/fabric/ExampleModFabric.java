@@ -42,11 +42,19 @@ import net.spell_engine.internals.SpellRegistry;
 import net.spell_engine.utils.TargetHelper;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
+import net.spellbladenext.blocks.blockentities.NetherPortal;
+import net.spellbladenext.blocks.blockentities.NetherPortalFrame;
+import net.spellbladenext.effects.DireHex;
+import net.spellbladenext.effects.Hex;
 import net.spellbladenext.entities.*;
-import net.spellbladenext.fabric.block.Hexblade;
-import net.spellbladenext.fabric.config.ItemConfig;
-import net.spellbladenext.fabric.config.LootConfig;
+import net.spellbladenext.blocks.Hexblade;
+import net.spellbladenext.config.ItemConfig;
+import net.spellbladenext.config.LootConfig;
 import net.spellbladenext.fabric.items.*;
+import net.spellbladenext.items.Offering;
+import net.spellbladenext.items.Orbs;
+import net.spellbladenext.items.PrismaticEffigy;
+import net.spellbladenext.items.armoritems.Armors;
 import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 import net.spellbladenext.items.FriendshipBracelet;
 import net.tinyconfig.ConfigManager;
@@ -110,8 +118,8 @@ public class ExampleModFabric implements ModInitializer {
     public static ConfigManager<LootConfig> lootConfig;
 
 
-    public static EntityType<netherPortal> NETHERPORTAL;
-    public static EntityType<netherPortalFrame> NETHERPORTALFRAME;
+    public static EntityType<NetherPortal> NETHERPORTAL;
+    public static EntityType<NetherPortalFrame> NETHER_PORTAL_FRAME;
     public static final Block HEXBLADE = new Hexblade(FabricBlockSettings.of(Material.METAL).strength(5.0F, 6.0F).requiresTool().requiresCorrectToolForDrops().sound(SoundType.METAL).noOcclusion());
     @Override
     public void onInitialize() {
@@ -325,7 +333,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.ICICLEBARRIER = Registry.register(
+        SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "iciclebarrier"),
                 FabricEntityTypeBuilder.<IcicleBarrierEntity>create(MobCategory.MISC, IcicleBarrierEntity::new)
@@ -352,10 +360,10 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        NETHERPORTALFRAME = Registry.register(
+        NETHER_PORTAL_FRAME = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "netherportalframe"),
-                FabricEntityTypeBuilder.<netherPortalFrame>create(MobCategory.MISC, netherPortalFrame::new)
+                FabricEntityTypeBuilder.<NetherPortalFrame>create(MobCategory.MISC, NetherPortalFrame::new)
                         .dimensions(EntityDimensions.fixed(1F, 1F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
@@ -364,13 +372,13 @@ public class ExampleModFabric implements ModInitializer {
         NETHERPORTAL = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "netherportal"),
-                FabricEntityTypeBuilder.<netherPortal>create(MobCategory.MISC, netherPortal::new)
+                FabricEntityTypeBuilder.<NetherPortal>create(MobCategory.MISC, NetherPortal::new)
                         .dimensions(EntityDimensions.fixed(1F, 1F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.MAGMA = Registry.register(
+        SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "magma"),
                 FabricEntityTypeBuilder.<MagmaOrbEntity>create(MobCategory.MISC, MagmaOrbEntity::new)
@@ -379,7 +387,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.FLAMEWINDS = Registry.register(
+        SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "flamewinds"),
                 FabricEntityTypeBuilder.<FlameWindsEntity>create(MobCategory.MISC, FlameWindsEntity::new)
@@ -388,7 +396,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.CLEANSINGFLAME = Registry.register(
+        SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "cleansingflame"),
                 FabricEntityTypeBuilder.<CleansingFlameEntity>create(MobCategory.MISC, CleansingFlameEntity::new)
@@ -397,7 +405,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.ERUPTION = Registry.register(
+        SpellbladeNext.ERUPTION_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "eruption"),
                 FabricEntityTypeBuilder.<Eruption>create(MobCategory.MISC, Eruption::new)
@@ -406,7 +414,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.GAZE = Registry.register(
+        SpellbladeNext.ENDERS_GAZE_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "gaze"),
                 FabricEntityTypeBuilder.<EndersGazeEntity>create(MobCategory.MISC, EndersGazeEntity::new)
@@ -415,13 +423,13 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        FabricDefaultAttributeRegistry.register(REAVER,Reaver.createAttributes());
+        FabricDefaultAttributeRegistry.register(REAVER,Reaver.createReaverAttributes());
         FabricDefaultAttributeRegistry.register(MAGUS,Magus.createAttributes());
 
-        FabricDefaultAttributeRegistry.register(SPIN,SpinAttack.createAttributes());
-        FabricDefaultAttributeRegistry.register(COLDATTACK,ColdAttack.createAttributes());
+        FabricDefaultAttributeRegistry.register(SPIN,SpinAttack.createReaverAttributes());
+        FabricDefaultAttributeRegistry.register(COLDATTACK,ColdAttack.createReaverAttributes());
 
-        SpellbladeNext.GAZEHITTER = Registry.register(
+        SpellbladeNext.ENDERS_GAZE_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "gazehitter"),
                 FabricEntityTypeBuilder.<EndersGaze>create(MobCategory.MISC, EndersGaze::new)
@@ -430,7 +438,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.ICETHORN = Registry.register(
+        SpellbladeNext.ICE_THORN_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "icethorn"),
                 FabricEntityTypeBuilder.<IceThorn>create(MobCategory.MISC, IceThorn::new)
@@ -439,7 +447,7 @@ public class ExampleModFabric implements ModInitializer {
                         .trackedUpdateRate(1)
                         .build()
         );
-        SpellbladeNext.EXPLOSIONDUMMY = Registry.register(
+        SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "explosion"),
                 FabricEntityTypeBuilder.<ExplosionDummy>create(MobCategory.MISC, ExplosionDummy::new)

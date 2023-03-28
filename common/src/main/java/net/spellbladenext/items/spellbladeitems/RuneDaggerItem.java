@@ -103,9 +103,7 @@ public class RuneDaggerItem extends SwordItem implements ConfigurableAttributes 
         if(attacker.hasStatusEffect(ExampleModFabric.DIREHEX.get())){
             attacker.removeStatusEffect(ExampleModFabric.DIREHEX.get());
         }
-        stack.damage(1, attacker, (e) -> {
-            e.sendToolBreakStatus(Hand.MAIN_HAND);
-        });
+        stack.damage(1, attacker, (e) -> e.sendToolBreakStatus(Hand.MAIN_HAND));
         return true;
     }
     

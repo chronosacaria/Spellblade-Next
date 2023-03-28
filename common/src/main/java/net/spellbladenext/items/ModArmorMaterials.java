@@ -1,12 +1,12 @@
 package net.spellbladenext.items;
 
 
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.LazyLoadedValue;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.item.ArmorMaterial;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Lazy;
 import net.spellbladenext.SpellbladeNext;
 
 import java.util.function.Supplier;
@@ -14,25 +14,25 @@ import java.util.function.Supplier;
 import static net.spellbladenext.SpellbladeNext.WOOL_INGREDIENTS;
 
 public enum ModArmorMaterials implements ArmorMaterial {
-    RUNEBLAZING("runeblazing", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEBLAZEPLATING.get());
+    RUNEBLAZING("runeblazing", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEBLAZE_PLATING.get());
     }),
-    RUNEFROSTED("runefrosted", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEFROSTPLATING.get());
+    RUNEFROSTED("runefrosted", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEFROSTED_INGOT.get());
     }),
-    RUNEGLEAMING("runegleaming", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEGLINTPLATING.get());
+    RUNEGLEAMING("runegleaming", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEGLINTPLATING.get());
     }),
-    AETHERFIRE("aetherfire", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEBLAZEPLATING.get(),SpellbladeNext.RUNEFROSTPLATING.get());
+    AETHERFIRE("aetherfire", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEBLAZE_PLATING.get(),SpellbladeNext.RUNEFROSTED_INGOT.get());
     }),
-    RIMEBLAZE("rimeblaze", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEFROSTPLATING.get(),SpellbladeNext.RUNEBLAZEPLATING.get());
+    RIMEBLAZE("rimeblaze", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEFROSTED_INGOT.get(),SpellbladeNext.RUNEBLAZE_PLATING.get());
     }),
-    DEATHCHILL("deathchill", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ARMOR_EQUIP_CHAIN, 0, 0, () -> {
-        return Ingredient.of(SpellbladeNext.RUNEGLINTPLATING.get(),SpellbladeNext.RUNEFROSTPLATING.get());
+    DEATHCHILL("deathchill", 37, new int[]{1, 2, 3, 1}, 15, SoundEvents.ITEM_ARMOR_EQUIP_CHAIN, 0, 0, () -> {
+        return Ingredient.ofItems(SpellbladeNext.RUNEGLINTPLATING.get(),SpellbladeNext.RUNEFROSTED_INGOT.get());
     }),
-    WOOL("magus", 37, new int[]{2, 4, 6, 2}, 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0, 0,
+    WOOL("magus", 37, new int[]{2, 4, 6, 2}, 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 0, 0,
             WOOL_INGREDIENTS);
 
 
@@ -49,47 +49,55 @@ public enum ModArmorMaterials implements ArmorMaterial {
     private final SoundEvent sound;
     private final float toughness;
     private final float knockbackResistance;
-    private final LazyLoadedValue<Ingredient> repairIngredient;
+    private final Lazy<Ingredient> repairIngredient;
 
-    private ModArmorMaterials(String p_40474_, int p_40475_, int[] p_40476_, int p_40477_, SoundEvent p_40478_, float p_40479_, float p_40480_, Supplier<Ingredient> p_40481_) {
-        this.name = p_40474_;
-        this.durabilityMultiplier = p_40475_;
-        this.slotProtections = p_40476_;
-        this.enchantmentValue = p_40477_;
-        this.sound = p_40478_;
-        this.toughness = p_40479_;
-        this.knockbackResistance = p_40480_;
-        this.repairIngredient = new LazyLoadedValue<>(p_40481_);
+    private ModArmorMaterials(String name, int durabilityMultiplier, int[] slotProtections, int enchantmentValue, SoundEvent sound, float toughness, float knockbackResistance, Supplier<Ingredient> repairIngredient) {
+        this.name = name;
+        this.durabilityMultiplier = durabilityMultiplier;
+        this.slotProtections = slotProtections;
+        this.enchantmentValue = enchantmentValue;
+        this.sound = sound;
+        this.toughness = toughness;
+        this.knockbackResistance = knockbackResistance;
+        this.repairIngredient = new Lazy<>(repairIngredient);
     }
 
-    public int getDurabilityForSlot(EquipmentSlot p_40484_) {
-        return HEALTH_PER_SLOT[p_40484_.getIndex()] * this.durabilityMultiplier;
+    @Override
+    public int getDurability(EquipmentSlot slot) {
+        return HEALTH_PER_SLOT[slot.getEntitySlotId()] * this.durabilityMultiplier;
     }
 
-    public int getDefenseForSlot(EquipmentSlot p_40487_) {
-        return this.slotProtections[p_40487_.getIndex()];
+    @Override
+    public int getProtectionAmount(EquipmentSlot slot) {
+        return this.slotProtections[slot.getEntitySlotId()];
     }
 
-    public int getEnchantmentValue() {
+    @Override
+    public int getEnchantability() {
         return this.enchantmentValue;
     }
 
+    @Override
     public SoundEvent getEquipSound() {
         return this.sound;
     }
 
+    @Override
     public Ingredient getRepairIngredient() {
         return this.repairIngredient.get();
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public float getToughness() {
         return this.toughness;
     }
 
+    @Override
     public float getKnockbackResistance() {
         return this.knockbackResistance;
     }

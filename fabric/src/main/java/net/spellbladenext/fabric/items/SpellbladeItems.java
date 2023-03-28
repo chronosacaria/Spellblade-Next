@@ -1,6 +1,9 @@
 package net.spellbladenext.fabric.items;
 
 import net.minecraft.world.item.Item;
+import net.spellbladenext.items.Orbs;
+import net.spellbladenext.items.armoritems.Armors;
+import net.spellbladenext.items.armoritems.RunicArmor;
 
 import java.util.HashMap;
 
@@ -22,7 +25,7 @@ public class SpellbladeItems {
         for (var weaponEntry : net.spellbladenext.items.spellbladeitems.SpellbladeItems.runedaggers) {
             entries.put(weaponEntry.id().toString(), weaponEntry.item());
         }
-        for (var entry : Armors.entries) {
+        for (var entry : Armors.ENTRIES) {
             if (entry.armorSet().head instanceof RunicArmor) {
                 entries.put(MOD_ID+":"+entry.armorSet().head.toString(),
                         entry.armorSet().head);

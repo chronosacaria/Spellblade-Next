@@ -1,8 +1,9 @@
 package net.spellbladenext.fabric.items;
 
 import net.minecraft.resources.ResourceLocation;
-import net.spellbladenext.fabric.config.ItemConfig;
-import net.spellbladenext.fabric.config.LootConfig;
+import net.spellbladenext.config.ItemConfig;
+import net.spellbladenext.config.LootConfig;
+import net.spellbladenext.items.Orbs;
 import net.spellbladenext.items.spellbladeitems.SpellbladeItems;
 
 import java.util.List;

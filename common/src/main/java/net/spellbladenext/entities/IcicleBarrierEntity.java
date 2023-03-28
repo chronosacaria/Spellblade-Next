@@ -200,7 +200,7 @@ public class IcicleBarrierEntity extends SpellProjectile implements ItemSupplier
     }
     @Override
     public ItemStack getItem() {
-        return SpellbladeNext.dummyfrost3.get().getDefaultInstance();
+        return SpellbladeNext.FROSTBLADE.get().getDefaultInstance();
     }
 
     public Vec3 rotate(double x, double y, double z, double pitch, double roll, double yaw) {

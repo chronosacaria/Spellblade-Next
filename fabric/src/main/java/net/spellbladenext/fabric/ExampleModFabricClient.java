@@ -17,8 +17,16 @@ import net.spell_engine.internals.SpellRegistry;
 import net.spell_power.api.attributes.SpellAttributes;
 import net.spellbladenext.ClientMod;
 import net.spellbladenext.SpellbladeNext;
-import net.spellbladenext.entities.*;
-import net.spellbladenext.fabric.items.*;
+import net.spellbladenext.entities.renderers.CivilizedPiglinRenderer;
+import net.spellbladenext.entities.renderers.ColdRenderer;
+import net.spellbladenext.entities.models.AmethystModel;
+import net.spellbladenext.entities.models.IcicleModel;
+import net.spellbladenext.entities.renderers.*;
+import net.spellbladenext.items.Orbs;
+import net.spellbladenext.items.armoritems.Armors;
+import net.spellbladenext.items.armoritems.InquisitorSet;
+import net.spellbladenext.items.armoritems.Robes;
+import net.spellbladenext.items.renderers.*;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
@@ -80,7 +88,7 @@ public class ExampleModFabricClient implements ClientModInitializer {
         GeoItemRenderer.registerItemRenderer(Orbs.fireOrb.item(), new OrbRenderer());
         GeoItemRenderer.registerItemRenderer(Orbs.arcaneOrb.item(), new OrbRenderer());
         GeoItemRenderer.registerItemRenderer(Orbs.frostOrb.item(), new OrbRenderer());
-        for (var entry: Armors.entries) {
+        for (var entry: Armors.ENTRIES) {
             if(entry.armorSet().pieces().stream().allMatch(asdf -> asdf instanceof Robes)) {
                 GeoArmorRenderer.registerArmorRenderer(new RobeRenderer(),
                         entry.armorSet().head,
@@ -126,11 +134,11 @@ public class ExampleModFabricClient implements ClientModInitializer {
         EntityRendererRegistry.register(SpellbladeNext.AMETHYST2, AmethystRenderer::new);
         //EntityRendererRegistry.register(SpellbladeNext.AMETHYST2, AmethystRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.ICICLEBARRIER, IcicleRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.ICETHORN, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE, IcicleRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ICE_THORN_ENTITY_TYPE, ThrownItemRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.GAZE, ThrownItemRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.GAZEHITTER, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_ENTITY_TYPE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.ENDERS_GAZE_ENTITY_TYPE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(ExampleModFabric.REAVER, CivilizedPiglinRenderer::new);
         EntityRendererRegistry.register(ExampleModFabric.MAGUS, MagusRenderer::new);
 
@@ -138,17 +146,17 @@ public class ExampleModFabricClient implements ClientModInitializer {
         EntityRendererRegistry.register(ExampleModFabric.COLDATTACK, ColdRenderer::new);
 
         EntityRendererRegistry.register(ExampleModFabric.NETHERPORTAL, FallingBlockRenderer::new);
-        EntityRendererRegistry.register(ExampleModFabric.NETHERPORTALFRAME, FallingBlockRenderer::new);
+        EntityRendererRegistry.register(ExampleModFabric.NETHER_PORTAL_FRAME, FallingBlockRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.MAGMA, (asdf) -> new ThrownItemRenderer<>(asdf,2.0F,true));
+        EntityRendererRegistry.register(SpellbladeNext.MAGMA_ORB_ENTITY_ENTITY_TYPE, (asdf) -> new ThrownItemRenderer<>(asdf,2.0F,true));
         EntityModelLayerRegistry.registerModelLayer(AmethystModel.LAYER_LOCATION, AmethystModel::createBodyLayer);
         EntityModelLayerRegistry.registerModelLayer(IcicleModel.LAYER_LOCATION, IcicleModel::createBodyLayer);
 
-        EntityRendererRegistry.register(SpellbladeNext.CLEANSINGFLAME, (asdf) -> new ThrownRenderer<>(asdf,2.0F,true));
-        EntityRendererRegistry.register(SpellbladeNext.ERUPTION, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.CLEANSING_FLAME_ENTITY_ENTITY_TYPE, (asdf) -> new ThrownRenderer<>(asdf,2.0F,true));
+        EntityRendererRegistry.register(SpellbladeNext.ERUPTION_ENTITY_TYPE, ThrownItemRenderer::new);
 
-        EntityRendererRegistry.register(SpellbladeNext.FLAMEWINDS, ThrownItemRenderer::new);
-        EntityRendererRegistry.register(SpellbladeNext.EXPLOSIONDUMMY, (asdf) -> new ThrownItemRenderer<>(asdf,3.0F,true));
+        EntityRendererRegistry.register(SpellbladeNext.FLAME_WINDS_ENTITY_ENTITY_TYPE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(SpellbladeNext.EXPLOSION_DUMMY_ENTITY_TYPE, (asdf) -> new ThrownItemRenderer<>(asdf,3.0F,true));
 
 
     }

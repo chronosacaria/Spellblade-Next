@@ -88,10 +88,9 @@ public class SpellbladeItems {
 
     public static final ArrayList<Entry> entries = new ArrayList<>();
     private static Entry entry(String requiredMod, String name, Material material, ItemConfig.Weapon defaults) {
-        var config = defaults;
 
-        Item spellblade = new SpellbladeItem(material,attributesFrom(config),new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).durability(650),
-                config.spell_attributes);
+        Item spellblade = new SpellbladeItem(material,attributesFrom(defaults),new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).maxDamage(650),
+                defaults.spell_attributes);
         var entry = new Entry(SpellbladeNext.MOD_ID, name, material, spellblade, defaults, null);
         if (entry.isRequiredModInstalled()) {
             entries.add(entry);
@@ -101,10 +100,9 @@ public class SpellbladeItems {
     public static final ArrayList<Entry> runedaggers = new ArrayList<>();
 
     private static Entry runedaggers(String requiredMod, String name, Material material, ItemConfig.Weapon defaults) {
-        var config = defaults;
 
-        Item spellblade = new RuneDaggerItem(material,attributesFrom(config),new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).durability(650),
-                config.spell_attributes);
+        Item spellblade = new RuneDaggerItem(material, new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).maxDamage(650),
+                defaults.spell_attributes);
         var entry = new Entry(SpellbladeNext.MOD_ID, name, material, spellblade, defaults, null);
         if (entry.isRequiredModInstalled()) {
             runedaggers.add(entry);
@@ -114,9 +112,7 @@ public class SpellbladeItems {
     public static final ArrayList<Entry> orbs = new ArrayList<>();
 
     private static Entry orbs(String requiredMod, String name, Material material, ItemConfig.Weapon defaults) {
-        var config = defaults;
-
-        Item orb = new StaffItem(material,new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).durability(650));
+        Item orb = new StaffItem(material,new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).maxDamage(650));
         var entry = new Entry(SpellbladeNext.MOD_ID, name, material,orb, defaults, null);
         if (entry.isRequiredModInstalled()) {
             orbs.add(entry);
@@ -126,9 +122,8 @@ public class SpellbladeItems {
     public static final ArrayList<Entry> claymores = new ArrayList<>();
 
     private static Entry claymores(String requiredMod, String name, Material material, ItemConfig.Weapon defaults) {
-        var config = defaults;
-        Item claymore = new ClaymoreItems(material,attributesFrom(config),new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).durability(800),
-                config.spell_attributes);
+        Item claymore = new ClaymoreItems(material, (int) defaults.attack_damage, defaults.attack_speed, new Item.Settings().group(SpellbladeNext.EXAMPLE_TAB).maxDamage(800),
+                defaults.spell_attributes);
         var entry = new Entry(SpellbladeNext.MOD_ID, name, material, claymore, defaults, null);
         if (entry.isRequiredModInstalled()) {
             claymores.add(entry);
@@ -374,7 +369,7 @@ public class SpellbladeItems {
                 new EntityAttributeModifier(
                         ItemAccessor.ATTACK_DAMAGE_MODIFIER_ID(),
                         "Weapon modifier",
-                        (double)3,
+                        3,
                         EntityAttributeModifier.Operation.ADDITION));
         builder.put(EntityAttributes.GENERIC_ATTACK_SPEED,
                 new EntityAttributeModifier(

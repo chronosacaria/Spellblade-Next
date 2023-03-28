@@ -72,11 +72,11 @@ public class ClaymoreItems extends SwordItem implements ConfigurableAttributes {
                             List<Entity> targets = player.getWorld().getOtherEntities(player,player.getBoundingBox().expand(6),selectionPredicate);
 
                             if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"fireoverdrive")),stack).satisfied()) {
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"fireoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
+                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"fireoverdrive"), targets,stack, SpellCast.Action.RELEASE, Hand.MAIN_HAND, 0);
                             }
                         }
-                        if (attacker.hasStatusEffect(SpellbladeNext.FIREINFUSION.get())){
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FIREINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FIREINFUSION.get()).getAmplifier()+1,2)));
+                        if (attacker.hasStatusEffect(SpellbladeNext.FIRE_INFUSION.get())){
+                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FIRE_INFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FIRE_INFUSION.get()).getAmplifier()+1,2)));
                         }
                     }
                     case FROST -> {
@@ -86,11 +86,11 @@ public class ClaymoreItems extends SwordItem implements ConfigurableAttributes {
                             List<Entity> targets = player.getWorld().getOtherEntities(player,player.getBoundingBox().expand(6),selectionPredicate);
                             if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"frostoverdrive")),stack).satisfied()) {
 
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"frostoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
+                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"frostoverdrive"), targets,stack, SpellCast.Action.RELEASE, Hand.MAIN_HAND, 0);
                             }
                         }
-                        if (attacker.hasStatusEffect(SpellbladeNext.FROSTINFUSION.get())) {
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FROSTINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FROSTINFUSION.get()).getAmplifier()+1,2)));
+                        if (attacker.hasStatusEffect(SpellbladeNext.FROST_INFUSION.get())) {
+                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FROST_INFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FROST_INFUSION.get()).getAmplifier()+1,2)));
                         }
                     }
                     case ARCANE -> {
@@ -102,11 +102,11 @@ public class ClaymoreItems extends SwordItem implements ConfigurableAttributes {
 
                             if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"arcaneoverdrive")),stack).satisfied()) {
 
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"arcaneoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
+                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"arcaneoverdrive"), targets,stack, SpellCast.Action.RELEASE, Hand.MAIN_HAND, 0);
                             }
                         }
-                        if (attacker.hasStatusEffect(SpellbladeNext.ARCANEINFUSION.get())){
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.ARCANEINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.ARCANEINFUSION.get()).getAmplifier()+1,2)));
+                        if (attacker.hasStatusEffect(SpellbladeNext.ARCANE_INFUSION.get())){
+                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.ARCANE_INFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.ARCANE_INFUSION.get()).getAmplifier()+1,2)));
                         }
                     }
                 }
@@ -117,84 +117,6 @@ public class ClaymoreItems extends SwordItem implements ConfigurableAttributes {
             e.sendToolBreakStatus(Hand.MAIN_HAND);
         });
         return true;
-    }
-
-    @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        for(ItemConfig.SpellAttribute school: this.getMagicSchools().stream().toList()) {
-            if(attacker instanceof PlayerEntity player) {
-                //System.out.println(school.name);
-                MagicSchool actualSchool = MagicSchool.fromAttributeId(new Identifier(SpellPowerMod.ID, school.name));
-
-                SpellPower.Result power = SpellPower.getSpellPower(actualSchool, attacker);
-                SpellPower.Vulnerability vulnerability = SpellPower.Vulnerability.none;
-
-                vulnerability = SpellPower.getVulnerability(target, actualSchool);
-
-                //SpellPower.Result power = SpellPower.getSpellPower(MagicSchool.ARCANE, (LivingEntity) this.getOwner());
-                double amount = 3 * power.randomValue(vulnerability) / 3;
-
-
-                //particleMultiplier = power.criticalDamage() + (double)vulnerability.criticalDamageBonus();
-                target.hurtTime = 0;
-
-                target.damage(SpellDamageSource.create(actualSchool, attacker), (float) amount);
-                switch (actualSchool) {
-                    case FIRE -> {
-                        if(SpellContainerHelper.containerFromItemStack(stack).spell_ids.contains("spellbladenext:fireoverdrive")){
-                            Predicate<Entity> selectionPredicate = (target2) -> {
-                                return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
-                                        && FriendshipBracelet.PlayerFriendshipPredicate(player,target));
-                            };
-                            List<Entity> targets = player.getWorld().getOtherEntities(player,player.getBoundingBox().expand(6),selectionPredicate);
-
-                            if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"fireoverdrive")),stack).satisfied()) {
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"fireoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
-                            }
-                        }
-                        if (attacker.hasStatusEffect(SpellbladeNext.FIREINFUSION.get())){
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FIREINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FIREINFUSION.get()).getAmplifier()+1,2)));
-                        }
-                    }
-                    case FROST -> {
-                        if(SpellContainerHelper.containerFromItemStack(stack).spell_ids.contains("spellbladenext:frostoverdrive")){
-                            Predicate<Entity> selectionPredicate = (target2) -> (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
-                                    && FriendshipBracelet.PlayerFriendshipPredicate(player,target));
-                            List<Entity> targets = player.getWorld().getOtherEntities(player,player.getBoundingBox().expand(6),selectionPredicate);
-                            if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"frostoverdrive")),stack).satisfied()) {
-
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"frostoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
-                            }
-                        }
-                        if (attacker.hasStatusEffect(SpellbladeNext.FROSTINFUSION.get())) {
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.FROSTINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.FROSTINFUSION.get()).getAmplifier()+1,2)));
-                        }
-                    }
-                    case ARCANE -> {
-
-                        if(SpellContainerHelper.containerFromItemStack(stack).spell_ids.contains("spellbladenext:arcaneoverdrive")){
-                            Predicate<Entity> selectionPredicate = (target2) -> (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, player, target)
-                                    && FriendshipBracelet.PlayerFriendshipPredicate(player,target));
-                            List<Entity> targets = player.getWorld().getOtherEntities(player,player.getBoundingBox().expand(6),selectionPredicate);
-
-                            if(SpellHelper.ammoForSpell(player, SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID,"arcaneoverdrive")),stack).satisfied()) {
-
-                                SpellHelper.performSpell(player.world,player, new Identifier(SpellbladeNext.MOD_ID,"arcaneoverdrive"), targets,stack, SpellCast.Action.RELEASE, InteractionHand.MAIN_HAND, 0);
-                            }
-                        }
-                        if (attacker.hasStatusEffect(SpellbladeNext.ARCANEINFUSION.get())){
-                            attacker.addStatusEffect(new StatusEffectInstance(SpellbladeNext.ARCANEINFUSION.get(), 100, Math.min(attacker.getStatusEffect(SpellbladeNext.ARCANEINFUSION.get()).getAmplifier()+1,2)));
-                        }
-                    }
-                }
-            }
-
-        }
-        stack.damage(1, attacker, (e) -> {
-            e.sendToolBreakStatus(Hand.MAIN_HAND);
-        });
-        return true;
-
     }
 
     @Override
