@@ -8,7 +8,7 @@ import net.spell_power.api.MagicSchool;
 import net.spell_power.api.SpellPower;
 import net.spellbladenext.SpellbladeNext;
 import net.spellbladenext.entities.AmethystPersistentProjectileEntity;
-import net.spellbladenext.entities.IcicleBarrierEntity;
+import net.spellbladenext.entities.IcicleBarrierSpellProjectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +21,7 @@ public class BarrierMixin {
         if(entity instanceof SpellProjectile spellProjectile && !(entity instanceof AmethystPersistentProjectileEntity)){
 
             if(spellProjectile.getItem().getItem().equals(SpellbladeNext.ICICLE_2.get()) && spellProjectile.getOwner() instanceof PlayerEntity playerEntity) {
-                    IcicleBarrierEntity amethyst = new IcicleBarrierEntity(SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE, entity.getWorld(), player);
+                    IcicleBarrierSpellProjectile amethyst = new IcicleBarrierSpellProjectile(SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE, entity.getWorld(), player);
                     amethyst.setPos(player.getEyePosition().add(player.getViewVector(1).normalize().multiply(4,4,4)));
                     amethyst.setOwner(player);
                     SpellPower.Vulnerability vulnerability = SpellPower.Vulnerability.none;

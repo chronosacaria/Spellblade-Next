@@ -1,26 +1,26 @@
 package net.spellbladenext.entities;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerWorld;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.World;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.EndGatewayBlockEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FlyingItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.entity.SpellProjectile;
 import net.spell_engine.internals.SpellHelper;
@@ -31,89 +31,94 @@ import net.spellbladenext.items.FriendshipBracelet;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
+public class MagmaOrbEntity extends SpellProjectile implements FlyingItemEntity {
     public SpellPower.Result power;
     private int count;
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World level) {
-        super(entityType, level);
+    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World world) {
+        super(entityType, world);
     }
-    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World level, PlayerEntity playerEntity) {
-        super(entityType, level);
-        this.setOwner(player);
+    public MagmaOrbEntity(EntityType<? extends MagmaOrbEntity> entityType, World world, PlayerEntity playerEntity) {
+        super(entityType, world);
+        this.setOwner(playerEntity);
     }
+
     int changetime = 0;
+
     @Override
     public Behaviour behaviour() {
         return Behaviour.FLY;
     }
 
-
-
     @Override
     public void tick() {
 
-        if(firstTick){
-            SoundEvent soundEvent = SoundEvents.BLAZE_SHOOT;
+        if(firstUpdate){
+            SoundEvent soundEvent = SoundEvents.ENTITY_BLAZE_SHOOT;
             this.playSound(soundEvent, 0.25F, 1F);
         }
 
         super.baseTick();
-        this.xOld = this.getX();
-        this.yOld = this.getY();
-        this.zOld = this.getZ();
-        if(this.getOwner() == null && !this.getWorld().isClientSide){
+        this.lastRenderX = this.getX();
+        this.lastRenderY = this.getY();
+        this.lastRenderZ = this.getZ();
+        if(this.getOwner() == null && !this.getWorld().isClient){
             this.discard();
         }
         if(this.changetime > 0) {
             this.changetime--;
         }
-        HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult hitresult = ProjectileUtil.getCollision(this, this::canHit);
         boolean flag = false;
         if (hitresult.getType() == HitResult.Type.BLOCK) {
             BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
-            BlockState blockstate = this.level.getBlockState(blockpos);
-            if (blockstate.is(Blocks.NETHER_PORTAL)) {
-                this.handleInsidePortal(blockpos);
+            BlockState blockstate = this.getWorld().getBlockState(blockpos);
+            if (blockstate.isOf(Blocks.NETHER_PORTAL)) {
+                this.setInNetherPortal(blockpos);
                 flag = true;
-            } else if (blockstate.is(Blocks.END_GATEWAY)) {
-                BlockEntity blockentity = this.level.getBlockEntity(blockpos);
-                if (blockentity instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                    TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity)blockentity);
+            } else if (blockstate.isOf(Blocks.END_GATEWAY)) {
+                BlockEntity blockentity = this.getWorld().getBlockEntity(blockpos);
+                if (blockentity instanceof EndGatewayBlockEntity && EndGatewayBlockEntity.canTeleport(this)) {
+                    EndGatewayBlockEntity.tryTeleportingEntity(this.getWorld(), blockpos, blockstate, this, (EndGatewayBlockEntity)blockentity);
                 }
-
                 flag = true;
             }
         }
 
-        if (hitresult.getType() == HitResult.Type.BLOCK && !this.getWorld().isClientSide()  && !flag ) {
-            this.onHit(hitresult);
+        if (hitresult.getType() == HitResult.Type.BLOCK && !this.getWorld().isClient()  && !flag ) {
+            this.onCollision(hitresult);
         }
 
-        this.checkInsideBlocks();
-        Vec3 vec3 = this.getDeltaMovement();
-        double d2 = this.getX() + vec3.x;
-        double d0 = this.getY() + vec3.y;
-        double d1 = this.getZ() + vec3.z;
+        this.tryCheckBlockCollision();
+        Vec3d velocityVec = this.getVelocity();
+        double d2 = this.getX() + velocityVec.getX();
+        double d0 = this.getY() + velocityVec.getY();
+        double d1 = this.getZ() + velocityVec.getZ();
         this.updateRotation();
         float f;
-        if (this.isInWater()) {
+        if (this.isTouchingWater()) {
             for(int i = 0; i < 4; ++i) {
                 float f1 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
+                this.getWorld().addParticle(
+                        ParticleTypes.BUBBLE,
+                        d2 - velocityVec.getX() * 0.25D,
+                        d0 - velocityVec.getY() * 0.25D,
+                        d1 - velocityVec.getZ() * 0.25D,
+                        velocityVec.getX(),
+                        velocityVec.getY(),
+                        velocityVec.getZ());
             }
 
             f = 0.8F;
         } else {
             f = 0.99F;
         }
-        if(!this.getWorld().isClientSide()) {
-            this.setDeltaMovement(vec3.scale((double) f));
-            if (!this.isNoGravity()) {
-                Vec3 vec31 = this.getDeltaMovement();
-                this.setDeltaMovement(vec31.x, vec31.y - (double) this.getGravity(), vec31.z);
+        if(!this.getWorld().isClient()) {
+            this.setVelocity(velocityVec.multiply(f));
+            if (!this.hasNoGravity()) {
+                this.setVelocity(velocityVec.getX(), velocityVec.getY() - (double) this.getGravity(), velocityVec.getZ());
             }
         }
 
@@ -122,58 +127,22 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
     }
 
     @Override
-    protected void onHit(HitResult hitResult) {
-        if(hitResult instanceof BlockHitResult result && !this.getWorld().isClientSide()) {
+    protected void onCollision(HitResult hitResult) {
+        if(hitResult instanceof BlockHitResult result && !this.getWorld().isClient()) {
             final int NUM_POINTS = 96;
             final double RADIUS = 4d;
-            if (!this.level.isClientSide()) {
-                if ((result.getDirection() == Direction.NORTH) || result.getDirection() == Direction.SOUTH) {
-                    this.setDeltaMovement(1 * this.getDeltaMovement().x, 1 * this.getDeltaMovement().y, -1 * this.getDeltaMovement().z);
-				/*for (int i = 0; i < NUM_POINTS; ++i)
-				{
-				    final double angle = Math.toRadians(((double) i / NUM_POINTS) * 360d);
-
-				        double x = Math.cos(angle) * RADIUS;
-				        double y = Math.sin(angle) * RADIUS;
-
-					ThrownItems thrown = new ThrownItems(world, this.thrower);
-					thrown.setNoGravity(true);
-					Vec3d vec3 = new Vec3d(x,0,y);
-					thrown.shoot(vec3.x, vec3.y, vec3.z, 1, 0);
-
-				}
-				if(count >= 8) {
-					this.setDead();
-				}
-				this.count++;*/
+            if (!this.getWorld().isClient()) {
+                if ((result.getSide() == Direction.NORTH) || result.getSide() == Direction.SOUTH) {
+                    this.setVelocity(1 * this.getVelocity().getX(), 1 * this.getVelocity().getY(), -1 * this.getVelocity().getZ());
                 }
-                if ((result.getDirection() == Direction.EAST || result.getDirection() == Direction.WEST)) {
-                    this.setDeltaMovement(-1 * this.getDeltaMovement().x, 1 * this.getDeltaMovement().y, 1 * this.getDeltaMovement().z);
-				/*for (int i = 0; i < NUM_POINTS; ++i)
-				{
-				    final double angle = Math.toRadians(((double) i / NUM_POINTS) * 360d);
-
-				        double x = Math.cos(angle) * RADIUS;
-				        double y = Math.sin(angle) * RADIUS;
-
-					ThrownItems thrown = new ThrownItems(world, this.thrower);
-					thrown.setNoGravity(true);
-					Vec3d vec3 = new Vec3d(x,0,y);
-					thrown.shoot(vec3.x, vec3.y, vec3.z, 1, 0);
-
-				}
-				if(count >= 8) {
-					this.setDead();
-				}
-				this.count++;*/
-
+                if ((result.getSide() == Direction.EAST || result.getSide() == Direction.WEST)) {
+                    this.setVelocity(-1 * this.getVelocity().getX(), 1 * this.getVelocity().getY(), 1 * this.getVelocity().getZ());
                 }
-
-                if (result.getDirection() == Direction.UP || result.getDirection() == Direction.DOWN ) {
-                    this.setDeltaMovement(1 * this.getDeltaMovement().x, -1 * this.getDeltaMovement().y, 1 * this.getDeltaMovement().z);
-                    if (result.getDirection() == Direction.UP && this.getOwner() instanceof Player owner) {
-                        if (this.getDeltaMovement().y < 0.2) {
-                            this.setDeltaMovement(this.getDeltaMovement().x, 0.2, this.getDeltaMovement().z);
+                if (result.getSide() == Direction.UP || result.getSide() == Direction.DOWN ) {
+                    this.setVelocity(1 * this.getVelocity().getX(), -1 * this.getVelocity().getY(), 1 * this.getVelocity().getZ());
+                    if (result.getSide() == Direction.UP && this.getOwner() instanceof PlayerEntity owner) {
+                        if (this.getVelocity().getY() < 0.2) {
+                            this.setVelocity(this.getVelocity().getX(), 0.2, this.getVelocity().getZ());
                         }
                         for (int i = 0; i < NUM_POINTS; ++i) {
                             final double angle = Math.toRadians(((double) i / NUM_POINTS) * 360d);
@@ -181,52 +150,38 @@ public class MagmaOrbEntity extends SpellProjectile implements ItemSupplier {
                             double x = Math.cos(angle) * RADIUS;
                             double y = Math.sin(angle) * RADIUS;
 
-                            if(!this.getWorld().isClientSide())
-                            ((ServerWorld) this.level).sendParticles(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 1, x, 0.0D, y, 0.2D);
-
+                            if(!this.getWorld().isClient())
+                                ((ServerWorld) this.world).spawnParticles(ParticleTypes.FLAME, this.getX(), this.getBodyY(0.5), this.getZ(), 1, x, 0.0D, y, 0.2D);
                         }
-                        Predicate<Entity> selectionPredicate = (target) -> {
-                            return (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, owner, target)
-                                    && FriendshipBracelet.PlayerFriendshipPredicate(owner,target));
-                        };
+                        Predicate<Entity> selectionPredicate = (target) -> (TargetHelper.actionAllowed(TargetHelper.TargetingMode.AREA, TargetHelper.Intent.HARMFUL, owner, target)
+                                && FriendshipBracelet.PlayerFriendshipPredicate(owner,target));
                         Spell.Release.Target.Area area = new Spell.Release.Target.Area();
                         area.angle_degrees = 360;
-                        List<Entity> list = TargetHelper.targetsFromArea(this, result.getLocation().add(0,(double)this.getBbHeight()*0.5,0), 4, area, selectionPredicate);
+                        List<Entity> list = TargetHelper.targetsFromArea(this, result.getPos().add(0,(double)this.getHeight() * 0.5,0), 4, area, selectionPredicate);
                         for(Entity living : list){
-                            if(this.power != null && this.context != null && this.spell != null ) {
-                                SpellHelper.performImpacts(this.getWorld(),owner,living,this.spell,this.context);
-                            }
+                            SpellHelper.performImpacts(this.getWorld(), owner, living, this.spell, this.context);
                         }
-                        SoundEvent soundEvent = SoundEvents.BLAZE_SHOOT;
+                        SoundEvent soundEvent = SoundEvents.ENTITY_BLAZE_SHOOT;
                         this.playSound(soundEvent, 1F, 1F);
-                        if (count >= 4) {
+                        if (count >= 4)
                             this.discard();
-                        }
                         this.count++;
-
                     }
                 }
             }
-            /*if (this.getOwner() != null) {
-
-                SoundEvent soundEvent = SoundEvents.BLAZE_SHOOT;
-                this.playSound(soundEvent, 0.25F, 1F);
-                if(!this.level.isClientSide()){
-                    this.discard();
-                }
-            }*/
         }
     }
     @Override
     public boolean isAttackable() {
         return false;
     }
+
     protected float getGravity() {
         return 0.06F;
     }
 
     @Override
-    public ItemStack getItem() {
-        return Items.FIRE_CHARGE.getDefaultInstance();
+    public ItemStack getStack() {
+        return Items.FIRE_CHARGE.getDefaultStack();
     }
 }

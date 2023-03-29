@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.entity.InventoryOwner;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
@@ -104,11 +106,11 @@ public class MagusEntity extends PathAwareEntity implements InventoryOwner, IAni
     private boolean dashing = false;
     public boolean spawnedfromitem = false;
     public int tier = 0;
-    public static final EntityDataAccessor<Integer> TIER;
-    public static final EntityDataAccessor<Boolean> FLOATING;
-    public static final EntityDataAccessor<Boolean> FLYING;
-    public static final EntityDataAccessor<Boolean> RAISING;
-    public static final EntityDataAccessor<Boolean> JUMPING;
+    public static final TrackedData<Integer> TIER;
+    public static final TrackedData<Boolean> FLOATING;
+    public static final TrackedData<Boolean> FLYING;
+    public static final TrackedData<Boolean> RAISING;
+    public static final TrackedData<Boolean> JUMPING;
 
     static {
         TIER = SynchedEntityData.defineId(MagusEntity.class, EntityDataSerializers.INT);

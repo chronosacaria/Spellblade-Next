@@ -4,7 +4,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.Activity;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.ai.brain.task.*;
 import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.GlobalPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
@@ -33,33 +41,56 @@ public class MagusAI {
 
         public MagusAI() {
         }
-        protected static Brain<?> makeBrain(MagusEntity piglinBrute, Brain<MagusEntity> brain) {
-            initCoreActivity(piglinBrute, brain);
-            initIdleActivity(piglinBrute, brain);
-            initFightActivity(piglinBrute, brain);
+        protected static Brain<?> makeBrain(MagusEntity magusEntity, Brain<MagusEntity> brain) {
+            initCoreActivity(brain);
+            initIdleActivity(brain);
+            initFightActivity(magusEntity, brain);
             brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
             brain.setDefaultActivity(Activity.IDLE);
-            brain.useDefaultActivity();
+            brain.resetPossibleActivities();
             return brain;
         }
 
-        protected static void initMemories(MagusEntity piglinBrute) {
-            GlobalPos globalPos = GlobalPos.of(piglinBrute.level.dimension(), piglinBrute.blockPosition());
-            piglinBrute.getBrain().setMemory(MemoryModuleType.HOME, globalPos);
+        private static void initCoreActivity(Brain<MagusEntity> brain) {
+            brain.setTaskList(
+                    Activity.CORE,
+                    0,
+                    ImmutableList.of(
+                            new LookAroundTask(45, 90),
+                            new WanderAroundTask(),
+                            new OpenDoorsTask(),
+                            new ForgetAngryAtTargetTask<>()
+                    )
+            );
         }
 
-        private static void initCoreActivity(MagusEntity piglinBrute, Brain<MagusEntity> brain) {
-            brain.addActivity(Activity.CORE, 0, ImmutableList.of(new LookAtTargetSink(45, 90), new MoveToTargetSink(),  new InteractWithDoor(), new StopBeingAngryIfTargetDead<MagusEntity>()));
+        private static void initIdleActivity(Brain<MagusEntity> brain) {
+            brain.setTaskList(
+                    Activity.IDLE,
+                    10,
+                    ImmutableList.of(
+                            new ConditionalTask<>(magus -> !magus.isthinking,
+                                    new UpdateAttackTargetTask<>(MagusAI::findNearestValidAttackTarget)),
+                            createIdleLookBehaviors(),
+                            createIdleMovementBehaviors(),
+                            new FindInteractionTargetTask(EntityType.PLAYER, 4)
+                    )
+            );
         }
 
-        private static void initIdleActivity(MagusEntity piglinBrute, Brain<MagusEntity> brain) {
-            brain.addActivity(Activity.IDLE, 10, ImmutableList.of(new RunIf<MagusEntity>(asdf -> !asdf.isthinking,new StartAttacking<MagusEntity>(MagusAI::findNearestValidAttackTarget)), createIdleLookBehaviors(), createIdleMovementBehaviors(), new SetLookAndInteract(EntityType.PLAYER, 4)));
-        }
-
-        private static void initFightActivity(MagusEntity piglinBrute, Brain<MagusEntity> brain) {
-            brain.addActivityAndRemoveMemoryWhenStopped(Activity.FIGHT, 10, ImmutableList.of(new StopAttackingIfTargetInvalid<MagusEntity>((livingEntity) -> {
-                return !isNearestValidAttackTarget(piglinBrute, (LivingEntity) livingEntity);
-            }),new MagusJumpBack<MagusEntity>(4.5D,1F),new RunIf<MagusEntity>(asdf -> piglinBrute.hasCustomName() &&piglinBrute.getCustomName().equals(Component.translatable("Caster")), new BackUp<MagusEntity>(10, 0.75F)),  new SetWalkTargetFromAttackTargetIfTargetOutOfReach(1.0F), new MeleeAttack(20)), MemoryModuleType.ATTACK_TARGET);
+        private static void initFightActivity(MagusEntity magusEntity, Brain<MagusEntity> brain) {
+            brain.setTaskList(
+                    Activity.FIGHT,
+                    10,
+                    ImmutableList.of(
+                            new ForgetAttackTargetTask<MagusEntity>((livingEntity) -> !isNearestValidAttackTarget(magusEntity, livingEntity)),
+                            new MagusJumpBack<MagusEntity>(4.5D,1F),
+                            new ConditionalTask<>(magus -> magusEntity.hasCustomName()
+                                    && magusEntity.getCustomName().equals(Text.translatable("Caster")),
+                                    new AttackTask<MagusEntity>(10, 0.75F)),
+                            new RangedApproachTask(1.0F),
+                            new MeleeAttack(20)),
+                    MemoryModuleType.ATTACK_TARGET);
         }
 
         private static RunOne<MagusEntity> createIdleLookBehaviors() {
@@ -70,17 +101,17 @@ public class MagusAI {
             return new RunOne(ImmutableList.of(Pair.of(new RandomStroll(0.6F), 2), Pair.of(InteractWith.of(EntityType.PIGLIN, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(InteractWith.of(EntityType.PIGLIN_BRUTE, 8, MemoryModuleType.INTERACTION_TARGET, 0.6F, 2), 2), Pair.of(new StrollToPoi(MemoryModuleType.HOME, 0.6F, 2, 100), 2), Pair.of(new StrollAroundPoi(MemoryModuleType.HOME, 0.6F, 5), 2), Pair.of(new DoNothing(30, 60), 1)));
         }
 
-        protected static void updateActivity(MagusEntity piglinBrute) {
-            Brain<?> brain = piglinBrute.getBrain();
+        protected static void updateActivity(MagusEntity magusEntity) {
+            Brain<?> brain = magusEntity.getBrain();
             Activity activity = (Activity)brain.getActiveNonCoreActivity().orElse((Activity) null);
             //System.out.println(activity);
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.IDLE));
             Activity activity2 = (Activity)brain.getActiveNonCoreActivity().orElse((Activity) null);
             if (activity != activity2) {
-                playActivitySound(piglinBrute);
+                playActivitySound(magusEntity);
             }
 
-            piglinBrute.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
+            magusEntity.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
         }
 
         private static boolean isNearestValidAttackTarget(MagusEntity MagusEntity, LivingEntity livingEntity) {
@@ -114,9 +145,9 @@ public class MagusAI {
             });
         }
 
-        protected static void wasHurtBy(MagusEntity piglinBrute, LivingEntity livingEntity) {
+        protected static void wasHurtBy(MagusEntity magusEntity, LivingEntity livingEntity) {
             if (!(livingEntity instanceof AbstractPiglin)) {
-                maybeRetaliate(piglinBrute, livingEntity);
+                maybeRetaliate(magusEntity, livingEntity);
             }
         }
         protected static void maybeRetaliate(MagusEntity abstractPiglin, LivingEntity livingEntity) {
@@ -173,20 +204,20 @@ public class MagusAI {
         public static Optional<Player> getNearestVisibleTargetablePlayer(MagusEntity abstractPiglin) {
             return abstractPiglin.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER) ? abstractPiglin.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER) : Optional.empty();
         }
-        protected static void setAngerTarget(MagusEntity piglinBrute, LivingEntity livingEntity) {
-            piglinBrute.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-            piglinBrute.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, livingEntity.getUUID(), 600L);
+        protected static void setAngerTarget(MagusEntity magusEntity, LivingEntity livingEntity) {
+            magusEntity.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+            magusEntity.getBrain().setMemoryWithExpiry(MemoryModuleType.ANGRY_AT, livingEntity.getUUID(), 600L);
 
         }
 
-        protected static void maybePlayActivitySound(MagusEntity piglinBrute) {
-            if ((double)piglinBrute.level.random.nextFloat() < 0.0125D) {
-                playActivitySound(piglinBrute);
+        protected static void maybePlayActivitySound(MagusEntity magusEntity) {
+            if ((double)magusEntity.level.random.nextFloat() < 0.0125D) {
+                playActivitySound(magusEntity);
             }
         }
 
-        private static void playActivitySound(MagusEntity piglinBrute) {
-            piglinBrute.getBrain().getActiveNonCoreActivity().ifPresent((activity) -> {
+        private static void playActivitySound(MagusEntity magusEntity) {
+            magusEntity.getBrain().getActiveNonCoreActivity().ifPresent((activity) -> {
 
 
             });

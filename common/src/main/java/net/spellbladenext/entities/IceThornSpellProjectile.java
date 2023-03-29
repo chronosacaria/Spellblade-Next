@@ -35,8 +35,8 @@ public class IceThornSpellProjectile extends SpellProjectile implements FlyingIt
     public Spell spell;
     public SpellHelper.ImpactContext context;
 
-    public IceThornSpellProjectile(EntityType<? extends IceThornSpellProjectile> p_36721_, World p_36722_, PlayerEntity playerEntity) {
-        super(p_36721_, p_36722_);
+    public IceThornSpellProjectile(EntityType<? extends IceThornSpellProjectile> entityType, World world, PlayerEntity playerEntity) {
+        super(entityType, world);
         this.setOwner(playerEntity);
         Vec3d playerEntityRotationVec = playerEntity.getRotationVec(0);
         this.setNoGravity(true);

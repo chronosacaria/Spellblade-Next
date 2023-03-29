@@ -1,17 +1,16 @@
 package net.spellbladenext.entities;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerWorld;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.EntityTracker;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.brain.EntityLookTarget;
+import net.minecraft.entity.ai.brain.MemoryModuleState;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.internals.SpellRegistry;
 import net.spell_engine.particle.ParticleHelper;
@@ -26,134 +25,140 @@ import java.util.Optional;
 import static net.spellbladenext.entities.MagusEntity.JUMPING;
 import static net.spellbladenext.entities.MagusEntity.TIER;
 
-public class MagusJumpBack <E extends MagusEntity> extends Behavior<E> {
+public class MagusJumpBack extends Task<MagusEntity> {
     private final double tooCloseDistance;
     private final float strafeSpeed;
     float time = 0;
     boolean bool = true;
 
     public MagusJumpBack(double i, float f) {
-        super(ImmutableMap.of( MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED, MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT));
+        super(ImmutableMap.of(
+                MemoryModuleType.LOOK_TARGET,
+                MemoryModuleState.REGISTERED,
+                MemoryModuleType.ATTACK_TARGET,
+                MemoryModuleState.VALUE_PRESENT,
+                MemoryModuleType.VISIBLE_MOBS,
+                MemoryModuleState.VALUE_PRESENT)
+        );
         this.tooCloseDistance = i;
         this.strafeSpeed = f;
     }
 
-    protected boolean checkExtraStartConditions(ServerWorld serverWorld, E mob) {
-        return this.isTargetVisible(mob) && this.isTargetTooClose(mob) && mob.getMaxHealth()/10 < mob.damagetakensincelastthink;
+    protected boolean shouldRun(ServerWorld serverWorld, MagusEntity magusEntity) {
+        return this.isTargetVisible(magusEntity) && this.isTargetTooClose(magusEntity) && magusEntity.getMaxHealth()/10 < magusEntity.damagetakensincelastthink;
     }
 
-    protected void start(ServerWorld serverWorld, E mob, long l) {
-        //System.out.println("backing up!");
-        if(this.getTarget(mob).isPresent()) {
-            mob.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(this.getTarget(mob).get(), true));
+    protected void run(ServerWorld serverWorld, MagusEntity magusEntity, long time) {
+        if(this.getTarget(magusEntity).isPresent()) {
+            magusEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new EntityLookTarget(this.getTarget(magusEntity).get(), true));
         }
         bool = serverWorld.random.nextBoolean();
-
-        //mob.getMoveControl().strafe(-this.strafeSpeed, 0.0F);
-        //mob.setYRot(Mth.rotateIfNecessary(mob.getYRot(), mob.yHeadRot, 0.0F));
     }
 
     @Override
-    protected boolean canStillUse(ServerWorld serverWorld, E livingEntity, long l) {
-        return this.time <=40;
+    protected boolean shouldKeepRunning(ServerWorld serverWorld, MagusEntity magusEntity, long time) {
+        return time <=40;
     }
 
     @Override
-    protected void stop(ServerWorld serverWorld, E livingEntity, long l) {
+    protected void finishRunning(ServerWorld serverWorld, MagusEntity magusEntity, long time) {
         this.time = 0;
-        if(this.getTarget(livingEntity).isPresent()) {
-            Vec3 vec31 = new Vec3(-this.getTarget(livingEntity).get().getX()+livingEntity.getX(),0,-this.getTarget(livingEntity).get().getZ()+livingEntity.getZ());
-            Vec3 vec3 = new Vec3(vec31.normalize().x*1, 0.5,vec31.normalize().z*1 );
-            livingEntity.setPos(livingEntity.position().add(0,0.2,0));
-            livingEntity.setOnGround(false);
-            livingEntity.setDeltaMovement(vec3);
-            livingEntity.isthinking = true;
-            livingEntity.thinktime = 0;
-            livingEntity.damagetakensincelastthink = 0;
-            livingEntity.casting = true;
-            livingEntity.getEntityData().set(JUMPING,true);
-            livingEntity.getEntityData().set(TIER,livingEntity.getEntityData().get(TIER)+1);
+        if(this.getTarget(magusEntity).isPresent()) {
+            Vec3d vec31 = new Vec3d(
+                    -this.getTarget(magusEntity).get().getX() + magusEntity.getX(),
+                    0,
+                    -this.getTarget(magusEntity).get().getZ() + magusEntity.getZ()
+            );
+            Vec3d vec3d = new Vec3d(vec31.normalize().getX() * 1, 0.5,vec31.normalize().getZ() * 1 );
+            magusEntity.setPosition(magusEntity.getPos().add(0,0.2,0));
+            magusEntity.setOnGround(false);
+            magusEntity.setVelocity(vec3d);
+            magusEntity.isthinking = true;
+            magusEntity.thinktime = 0;
+            magusEntity.damagetakensincelastthink = 0;
+            magusEntity.casting = true;
+            magusEntity.getDataTracker().set(JUMPING,true);
+            magusEntity.getDataTracker().set(TIER, magusEntity.getDataTracker().get(TIER) + 1);
         }
 
-        super.stop(serverWorld, livingEntity, l);
+        super.stop(serverWorld, magusEntity, time);
     }
 
     @Override
-    protected void tick(ServerWorld serverWorld, E livingEntity, long l) {
-        super.tick(serverWorld, livingEntity, l);
+    protected void tick(ServerWorld serverWorld, MagusEntity magusEntity, long time) {
+        super.tick(serverWorld, magusEntity, time);
         int i = 1;
         if(bool){
             i = -1;
         }
-        if(this.getTarget(livingEntity).isPresent()) {
+        if(this.getTarget(magusEntity).isPresent()) {
             int ii = 1;
-            if(this.isTargetTooClose(livingEntity)){
+            if(this.isTargetTooClose(magusEntity)){
              ii = -1;
             }
-            livingEntity.getMoveControl().strafe(ii, i);
-            livingEntity.lookAt(this.getTarget(livingEntity).get(),999,999);
+            magusEntity.getMoveControl().strafeTo(ii, i);
+            magusEntity.lookAtEntity(this.getTarget(magusEntity).get(),999,999);
         }
-        if(time % 10 == 0) {
-            if (livingEntity.getMagicSchool() == MagicSchool.ARCANE) {
-                Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "arcaneoverdrive"));
-                if (!serverWorld.isClientSide()) {
-                    ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
+        if(this.time % 10 == 0) {
+            if (magusEntity.getMagicSchool() == MagicSchool.ARCANE) {
+                Spell spell = SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID, "arcaneoverdrive"));
+                if (!serverWorld.isClient()) {
+                    ParticleHelper.sendBatches(magusEntity, spell.release.particles);
+                    SoundHelper.playSound(serverWorld,magusEntity,spell.release.sound);
 
                 }
 
-                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesByClass(Entity.class, magusEntity.getBoundingBox().expand(4, 2, 4), asdf -> asdf != magusEntity);
                 for (Entity entity : entities) {
-                    entity.hurt(SpellDamageSource.mob(MagicSchool.ARCANE, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
+                    entity.damage(SpellDamageSource.mob(MagicSchool.ARCANE, magusEntity), (float) magusEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * 0.2F);
                 }
             }
-            if (livingEntity.getMagicSchool() == MagicSchool.FIRE) {
-                Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "fireoverdrive"));
-                if (!serverWorld.isClientSide()) {
-                    ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
+            if (magusEntity.getMagicSchool() == MagicSchool.FIRE) {
+                Spell spell = SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID, "fireoverdrive"));
+                if (!serverWorld.isClient()) {
+                    ParticleHelper.sendBatches(magusEntity, spell.release.particles);
+                    SoundHelper.playSound(serverWorld,magusEntity,spell.release.sound);
                 }
 
-                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesByClass(Entity.class, magusEntity.getBoundingBox().expand(4, 2, 4), asdf -> asdf != magusEntity);
                 for (Entity entity : entities) {
-                    entity.hurt(SpellDamageSource.mob(MagicSchool.FIRE, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
+                    entity.damage(SpellDamageSource.mob(MagicSchool.FIRE, magusEntity), (float) magusEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * 0.2F);
 
                 }
             }
-            if (livingEntity.getMagicSchool() == MagicSchool.FROST) {
-                Spell spell = SpellRegistry.getSpell(new ResourceLocation(SpellbladeNext.MOD_ID, "frostoverdrive"));
-                if (!serverWorld.isClientSide()) {
-                    ParticleHelper.sendBatches(livingEntity, spell.release.particles);
-                    SoundHelper.playSound(serverWorld,livingEntity,spell.release.sound);
+            if (magusEntity.getMagicSchool() == MagicSchool.FROST) {
+                Spell spell = SpellRegistry.getSpell(new Identifier(SpellbladeNext.MOD_ID, "frostoverdrive"));
+                if (!serverWorld.isClient()) {
+                    ParticleHelper.sendBatches(magusEntity, spell.release.particles);
+                    SoundHelper.playSound(serverWorld,magusEntity,spell.release.sound);
 
                 }
 
-                List<Entity> entities = serverWorld.getEntitiesOfClass(Entity.class, livingEntity.getBoundingBox().inflate(4, 2, 4), asdf -> asdf != livingEntity);
+                List<Entity> entities = serverWorld.getEntitiesByClass(Entity.class, magusEntity.getBoundingBox().expand(4, 2, 4), asdf -> asdf != magusEntity);
                 for (Entity entity : entities) {
-                    entity.hurt(SpellDamageSource.mob(MagicSchool.FROST, livingEntity), (float) livingEntity.getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.2F);
+                    entity.damage(SpellDamageSource.mob(MagicSchool.FROST, magusEntity), (float) magusEntity.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE) * 0.2F);
                 }
             }
         }
 
-        time++;
+        this.time++;
     }
 
-    private boolean isTargetVisible(E mob) {
-        if(this.getTarget(mob).isPresent()) {
-
-            return ((NearestVisibleLivingEntities) mob.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get()).contains(this.getTarget(mob).get());
+    private boolean isTargetVisible(MagusEntity mob) {
+        if(this.getTarget(mob).isPresent() && mob.getBrain().getOptionalMemory(MemoryModuleType.VISIBLE_MOBS).isPresent()) {
+            return mob.getBrain().getOptionalMemory(MemoryModuleType.VISIBLE_MOBS).get().contains(this.getTarget(mob).get());
         }
         return false;
     }
 
-    private boolean isTargetTooClose(E mob) {
+    private boolean isTargetTooClose(MagusEntity mob) {
         if(this.getTarget(mob).isPresent()) {
-        return this.getTarget(mob).get().closerThan(mob, (double)this.tooCloseDistance);
+        return this.getTarget(mob).get().isInRange(mob, this.tooCloseDistance);
         }
         return false;
     }
 
-    private Optional<LivingEntity> getTarget(E mob) {
-        return mob.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
+    private Optional<LivingEntity> getTarget(MagusEntity mob) {
+        return mob.getBrain().getOptionalMemory(MemoryModuleType.ATTACK_TARGET);
     }
 }

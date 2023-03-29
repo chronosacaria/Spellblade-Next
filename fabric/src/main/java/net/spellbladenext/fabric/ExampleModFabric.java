@@ -338,7 +338,7 @@ public class ExampleModFabric implements ModInitializer {
         SpellbladeNext.ICICLE_BARRIER_ENTITY_ENTITY_TYPE = Registry.register(
                 ENTITY_TYPE,
                 new ResourceLocation(MOD_ID, "iciclebarrier"),
-                FabricEntityTypeBuilder.<IcicleBarrierEntity>create(MobCategory.MISC, IcicleBarrierEntity::new)
+                FabricEntityTypeBuilder.<IcicleBarrierSpellProjectile>create(MobCategory.MISC, IcicleBarrierSpellProjectile::new)
                         .dimensions(EntityDimensions.fixed(0.25F, 0.25F)) // dimensions in Minecraft units of the render
                         .trackRangeBlocks(128)
                         .trackedUpdateRate(1)

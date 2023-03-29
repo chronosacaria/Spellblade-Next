@@ -75,7 +75,7 @@ public class SpellbladeNext {
     public static final EntityType<ExplosionPersistentProjectileEntity> REAL_EXPLOSION_DUMMY_ENTITY_TYPE;
 
 
-    public static final EntityType<IcicleBarrierEntity> ICICLE_BARRIER_ENTITY_ENTITY_TYPE;
+    public static final EntityType<IcicleBarrierSpellProjectile> ICICLE_BARRIER_ENTITY_ENTITY_TYPE;
     public static final DeferredRegister<StatusEffect> MOB_EFFECTS_REGISTRY = DeferredRegister.create(MOD_ID, Registry.MOB_EFFECT_KEY);
     public static final RegistrySupplier<StatusEffect> FIRE_INFUSION = MOB_EFFECTS_REGISTRY.register("fireinfusion", () -> new Infusion(StatusEffectCategory.BENEFICIAL, 0x990000).addAttributeModifier(
             SpellAttributes.POWER.get(MagicSchool.FIRE).attribute, "aef7de5e-2333-401b-8f19-d83258eab800", 2, EntityAttributeModifier.Operation.ADDITION));
